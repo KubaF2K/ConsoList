@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_list">Lista</string>
+    <string name="title_devices">Urządzenia</string>
+    <string name="add">Dodaj</string>
+</resources>

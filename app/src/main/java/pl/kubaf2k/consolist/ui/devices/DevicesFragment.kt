@@ -1,17 +1,17 @@
-package pl.kubaf2k.consolist.ui.notifications
+package pl.kubaf2k.consolist.ui.devices
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import pl.kubaf2k.consolist.databinding.FragmentNotificationsBinding
+import androidx.recyclerview.widget.LinearLayoutManager
+import pl.kubaf2k.consolist.databinding.FragmentDevicesBinding
 
-class NotificationsFragment : Fragment() {
+class DevicesFragment : Fragment() {
 
-    private var _binding: FragmentNotificationsBinding? = null
+    private var _binding: FragmentDevicesBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -22,16 +22,15 @@ class NotificationsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val notificationsViewModel =
-            ViewModelProvider(this).get(NotificationsViewModel::class.java)
+        val devicesViewModel =
+            ViewModelProvider(this)[DevicesViewModel::class.java]
 
-        _binding = FragmentNotificationsBinding.inflate(inflater, container, false)
+        _binding = FragmentDevicesBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textNotifications
-        notificationsViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+        binding.deviceRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.deviceRecyclerView.adapter = DevicesAdapter()
+
         return root
     }
 
