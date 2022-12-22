@@ -34,11 +34,37 @@
         tools:ignore="HardcodedText" />
 
     <Button
-        android:id="@+id/addButton"
+        android:id="@+id/editButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="5dp"
-        android:text="@string/add"
+        android:text="@string/edit"
+        app:layout_constraintTop_toBottomOf="@+id/consoleDescTextView"
+        app:layout_constraintEnd_toStartOf="@+id/deleteButton" />
+    <Button
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:text="@string/delete"
         app:layout_constraintTop_toBottomOf="@+id/consoleDescTextView"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/accessoriesHeaderText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/accessories"
+        app:layout_constraintStart_toStartOf="@+id/deviceImageView"
+        app:layout_constraintTop_toBottomOf="@+id/deviceImageView"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/accessoriesTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintStart_toStartOf="@+id/accessoriesHeaderText"
+        app:layout_constraintTop_toBottomOf="@+id/accessoriesHeaderText"
+        android:visibility="gone" />
 </androidx.constraintlayout.widget.ConstraintLayout>

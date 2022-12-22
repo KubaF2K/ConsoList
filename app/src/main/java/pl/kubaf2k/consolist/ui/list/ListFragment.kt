@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import pl.kubaf2k.consolist.databinding.FragmentListBinding
 
 class ListFragment : Fragment() {
@@ -28,10 +28,9 @@ class ListFragment : Fragment() {
         _binding = FragmentListBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textHome
-        listViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+        binding.deviceRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.deviceRecyclerView.adapter = DeviceEntitiesAdapter()
+
         return root
     }
 

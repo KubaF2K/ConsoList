@@ -3,4 +3,8 @@
     <string name="title_list">Lista</string>
     <string name="title_devices">Urządzenia</string>
     <string name="add">Dodaj</string>
+    <string name="accessories">Akcesoria:</string>
+    <string name="device_image_desc">Obraz urządzenia</string>
+    <string name="edit">Edytuj</string>
+    <string name="delete">Usuń</string>
 </resources>

@@ -11,6 +11,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import pl.kubaf2k.consolist.MainActivity.Companion.cachedImages
 import pl.kubaf2k.consolist.databinding.ActivityMainBinding
 import pl.kubaf2k.consolist.dataclasses.Device
 import pl.kubaf2k.consolist.dataclasses.Model
@@ -19,6 +20,9 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 suspend fun getBitmapFromURL(url: URL): Bitmap? {
+    if (cachedImages.containsKey(url))
+        return cachedImages[url]
+
     var bitmap: Bitmap? = null
     val bmOptions = BitmapFactory.Options().apply {
         inSampleSize = 1
@@ -39,7 +43,7 @@ suspend fun getBitmapFromURL(url: URL): Bitmap? {
             bitmap = null
         }
     }
-
+    bitmap?.let { cachedImages[url] = it }
     return bitmap
 }
 
@@ -66,7 +70,14 @@ class MainActivity : AppCompatActivity() {
             ),
             listOf()
         ))
-        lateinit var deviceEntities: MutableList<DeviceEntity>
+        val deviceEntities = listOf(DeviceEntity(
+            devices[0],
+            "Good",
+            null,
+            emptyList(),
+            emptyList()
+        ))
+        val cachedImages: MutableMap<URL, Bitmap> = HashMap()
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -89,7 +100,5 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-
-        deviceEntities = ArrayList()
     }
 }
