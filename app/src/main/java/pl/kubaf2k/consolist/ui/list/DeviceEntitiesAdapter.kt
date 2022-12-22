@@ -1,5 +1,6 @@
 package pl.kubaf2k.consolist.ui.list
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,17 +12,19 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
+import pl.kubaf2k.consolist.ListEntryActivity
 import pl.kubaf2k.consolist.MainActivity
 import pl.kubaf2k.consolist.R
 import pl.kubaf2k.consolist.getBitmapFromURL
 
 class DeviceEntitiesAdapter: RecyclerView.Adapter<DeviceEntitiesViewHolder>() {
-    private var lifecycleOwner: LifecycleOwner? = null
+    private lateinit var parent: ViewGroup
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DeviceEntitiesViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val deviceEntityRow = layoutInflater.inflate(R.layout.device_instance_row, parent, false)
-        lifecycleOwner = parent.findViewTreeLifecycleOwner()
+        this.parent = parent
+
         return DeviceEntitiesViewHolder(deviceEntityRow)
     }
 
@@ -49,7 +52,7 @@ class DeviceEntitiesAdapter: RecyclerView.Adapter<DeviceEntitiesViewHolder>() {
         if (deviceEntity.images.isNotEmpty()) {
             image.setImageBitmap(deviceEntity.images[0])
         } else {
-            lifecycleOwner?.lifecycleScope?.launch {
+            parent.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
                 val imgBitmap = getBitmapFromURL(deviceEntity.device.imgURL)
                 if (imgBitmap != null)
                     image.setImageBitmap(imgBitmap)
@@ -66,6 +69,18 @@ class DeviceEntitiesAdapter: RecyclerView.Adapter<DeviceEntitiesViewHolder>() {
             accessoriesString.deleteCharAt(accessoriesString.length-1)
 
             accessoriesText.text = accessoriesString.toString()
+        }
+
+        editBT.setOnClickListener {
+            val editIntent = Intent(parent.context, ListEntryActivity::class.java).apply {
+                putExtra("index", holder.adapterPosition)
+            }
+            parent.context.startActivity(editIntent)
+            // TODO refresh list
+        }
+        deleteBT.setOnClickListener {
+            MainActivity.deviceEntities.removeAt(holder.adapterPosition)
+            notifyItemRemoved(holder.adapterPosition)
         }
     }
 }

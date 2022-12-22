@@ -1,5 +1,6 @@
 package pl.kubaf2k.consolist.ui.devices
 
+import android.content.Intent
 import android.view.LayoutInflater
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.lifecycleScope
@@ -11,17 +12,18 @@ import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import kotlinx.coroutines.launch
+import pl.kubaf2k.consolist.ListEntryActivity
 import pl.kubaf2k.consolist.MainActivity
 import pl.kubaf2k.consolist.R
 import pl.kubaf2k.consolist.getBitmapFromURL
 
 class DevicesAdapter: RecyclerView.Adapter<DevicesViewHolder>() {
-    private var lifecycleOwner: LifecycleOwner? = null
+    private lateinit var parent: ViewGroup
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DevicesViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val deviceRow = layoutInflater.inflate(R.layout.device_row, parent, false)
-        lifecycleOwner = parent.findViewTreeLifecycleOwner()
+        this.parent = parent
         return DevicesViewHolder(deviceRow)
     }
 
@@ -44,10 +46,17 @@ class DevicesAdapter: RecyclerView.Adapter<DevicesViewHolder>() {
         if (description.text.length > 150)
             description.text = "${description.text.slice(0..150)}..."
 
-        lifecycleOwner?.lifecycleScope?.launch {
+        parent.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
             val imgBitmap = getBitmapFromURL(device.imgURL)
             if (imgBitmap != null)
                 image.setImageBitmap(imgBitmap)
+        }
+
+        addBT.setOnClickListener {
+            val addIntent = Intent(parent.context, ListEntryActivity::class.java).apply {
+                putExtra("device", holder.adapterPosition)
+            }
+            parent.context.startActivity(addIntent)
         }
     }
 }

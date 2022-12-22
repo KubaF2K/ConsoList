@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
             ),
             listOf()
         ))
-        val deviceEntities = listOf(DeviceEntity(
+        val deviceEntities = mutableListOf(DeviceEntity(
             devices[0],
             "Good",
             null,
