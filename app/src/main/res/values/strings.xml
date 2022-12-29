@@ -9,4 +9,11 @@
     <string name="delete">Delete</string>
     <string name="condition">Condition</string>
     <string name="save">Save</string>
+    <string name="model_number">Model Number</string>
+    <string name="other">Other…</string>
+    <string name="prev_image">Previous image</string>
+    <string name="next_image">Next image</string>
+    <string name="add_image">Add image</string>
+    <string name="del_image">Delete image</string>
+    <string name="photos">Photos</string>
 </resources>

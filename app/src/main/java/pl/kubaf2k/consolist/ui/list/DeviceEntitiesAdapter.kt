@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -53,9 +52,9 @@ class DeviceEntitiesAdapter: RecyclerView.Adapter<DeviceEntitiesViewHolder>() {
             image.setImageBitmap(deviceEntity.images[0])
         } else {
             parent.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
-                val imgBitmap = getBitmapFromURL(deviceEntity.device.imgURL)
-                if (imgBitmap != null)
-                    image.setImageBitmap(imgBitmap)
+                getBitmapFromURL(deviceEntity.model.imgURL)?.let {
+                    image.setImageBitmap(it)
+                }
             }
         }
 
@@ -72,11 +71,8 @@ class DeviceEntitiesAdapter: RecyclerView.Adapter<DeviceEntitiesViewHolder>() {
         }
 
         editBT.setOnClickListener {
-            val editIntent = Intent(parent.context, ListEntryActivity::class.java).apply {
-                putExtra("index", holder.adapterPosition)
-            }
+            val editIntent = Intent(parent.context, ListEntryActivity::class.java).putExtra("index", holder.adapterPosition)
             parent.context.startActivity(editIntent)
-            // TODO refresh list
         }
         deleteBT.setOnClickListener {
             MainActivity.deviceEntities.removeAt(holder.adapterPosition)

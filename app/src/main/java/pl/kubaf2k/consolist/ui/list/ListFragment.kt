@@ -5,11 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+//import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import pl.kubaf2k.consolist.databinding.FragmentListBinding
 
 class ListFragment : Fragment() {
+    companion object {
+        lateinit var deviceRecyclerView: RecyclerView
+    }
 
     private var _binding: FragmentListBinding? = null
 
@@ -22,11 +26,13 @@ class ListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val listViewModel =
-            ViewModelProvider(this)[ListViewModel::class.java]
+//        val listViewModel =
+//            ViewModelProvider(this)[ListViewModel::class.java]
 
         _binding = FragmentListBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        deviceRecyclerView = binding.deviceRecyclerView
 
         binding.deviceRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.deviceRecyclerView.adapter = DeviceEntitiesAdapter()

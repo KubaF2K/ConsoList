@@ -7,4 +7,13 @@
     <string name="device_image_desc">Obraz urządzenia</string>
     <string name="edit">Edytuj</string>
     <string name="delete">Usuń</string>
+    <string name="condition">Stan</string>
+    <string name="save">Zapisz</string>
+    <string name="model_number">Numer modelu</string>
+    <string name="other">Inny…</string>
+    <string name="prev_image">Poprzednie zdjęcie</string>
+    <string name="next_image">Następne zdjęcie</string>
+    <string name="add_image">Dodaj zdjęcie</string>
+    <string name="del_image">Usuń zdjęcie</string>
+    <string name="photos">Zdjęcia</string>
 </resources>

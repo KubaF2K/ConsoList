@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import kotlinx.coroutines.launch
 import pl.kubaf2k.consolist.ListEntryActivity
@@ -47,9 +46,9 @@ class DevicesAdapter: RecyclerView.Adapter<DevicesViewHolder>() {
             description.text = "${description.text.slice(0..150)}..."
 
         parent.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
-            val imgBitmap = getBitmapFromURL(device.imgURL)
-            if (imgBitmap != null)
-                image.setImageBitmap(imgBitmap)
+            getBitmapFromURL(device.imgURL)?.let {
+                image.setImageBitmap(it)
+            }
         }
 
         addBT.setOnClickListener {
