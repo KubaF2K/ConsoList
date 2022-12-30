@@ -16,4 +16,6 @@
     <string name="add_image">Add image</string>
     <string name="del_image">Delete image</string>
     <string name="photos">Photos</string>
+    <string name="set_image">Set image as thumbnail</string>
+    <string name="take_photo">Take photo</string>
 </resources>

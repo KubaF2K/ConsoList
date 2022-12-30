@@ -1,11 +1,15 @@
 package pl.kubaf2k.consolist
 
-import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -13,7 +17,9 @@ import pl.kubaf2k.consolist.databinding.ActivityListEntryBinding
 import pl.kubaf2k.consolist.dataclasses.Device
 import pl.kubaf2k.consolist.dataclasses.DeviceEntity
 import pl.kubaf2k.consolist.dataclasses.Model
+import pl.kubaf2k.consolist.dataclasses.SerializableBitmap
 import pl.kubaf2k.consolist.ui.list.ListFragment
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -22,18 +28,44 @@ class ListEntryActivity : AppCompatActivity() {
     private lateinit var device: Device
     private lateinit var oldEntity: DeviceEntity
 
+    private lateinit var emptyImgIcon: Drawable
+
     private var model: Model? = null
     private var modelNumber = ""
     private var index: Int = -1
-    private val images = LinkedList<Bitmap>()
+    private val images = LinkedList<SerializableBitmap>()
     private var imgPos = 0
 
     private var imgJob: Job? = null
+    private var tempUri: Uri? = null
 
     private fun updateButtons() {
         binding.prevImgBtn.isEnabled = imgPos > 0
         binding.nextImgBtn.isEnabled = imgPos <= images.size-1
         binding.delImgBtn.isEnabled = images.isNotEmpty()
+        binding.setImgBtn.isEnabled = images.size > 1 && imgPos > 0
+        binding.photosTextView.text = getString(R.string.photos) + if (images.isNotEmpty()) " (${imgPos+1}/${images.size})" else ""
+    }
+
+    private val imagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri -> uri?.let {
+        val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, it))
+        images.add(SerializableBitmap(bitmap))
+        imgPos = images.size - 1
+        binding.devicePhotoView.setImageBitmap(images[imgPos].bitmap)
+
+        updateButtons()
+    }}
+    private val camera = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (!success) return@registerForActivityResult
+
+        tempUri?.let { uri ->
+            val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri))
+            images.add(SerializableBitmap(bitmap))
+            imgPos = images.size - 1
+            binding.devicePhotoView.setImageBitmap(images[imgPos].bitmap)
+
+            updateButtons()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +84,8 @@ class ListEntryActivity : AppCompatActivity() {
                 device = MainActivity.devices[it as Int]
             }
         }
+
+        emptyImgIcon = binding.deviceImageView.drawable
 
         lifecycleScope.launch {
             getBitmapFromURL(device.imgURL)?.let{
@@ -152,24 +186,42 @@ class ListEntryActivity : AppCompatActivity() {
             if (oldEntity.images.isNotEmpty()) {
                 images.addAll(oldEntity.images)
 
-                binding.devicePhotoView.setImageBitmap(images[imgPos])
+                binding.devicePhotoView.setImageBitmap(images[imgPos].bitmap)
             }
         }
 
         binding.prevImgBtn.setOnClickListener {
             if (imgPos <= 0) return@setOnClickListener
 
-            binding.devicePhotoView.setImageBitmap(images[--imgPos])
+            binding.devicePhotoView.setImageBitmap(images[--imgPos].bitmap)
             updateButtons()
         }
         binding.nextImgBtn.setOnClickListener {
             if (imgPos >= images.size-1) return@setOnClickListener
 
-            binding.devicePhotoView.setImageBitmap(images[++imgPos])
+            binding.devicePhotoView.setImageBitmap(images[++imgPos].bitmap)
+            updateButtons()
+        }
+        binding.setImgBtn.setOnClickListener {
+            if (images.size <= 1) return@setOnClickListener
+
+            val img = images[imgPos]
+            images.removeAt(imgPos)
+            images.addFirst(img)
+
+            imgPos = 0
             updateButtons()
         }
         binding.addImgBtn.setOnClickListener {
-            TODO("Image picker/camera")
+            imagePicker.launch("image/*")
+        }
+        binding.cameraBtn.setOnClickListener {
+            val tmpFile = File.createTempFile("tmp_image", ".jpg", cacheDir).apply {
+                createNewFile()
+                deleteOnExit()
+            }
+            tempUri = FileProvider.getUriForFile(applicationContext, "${BuildConfig.APPLICATION_ID}.provider", tmpFile)
+            camera.launch(tempUri)
         }
         binding.delImgBtn.setOnClickListener {
             if (images.isEmpty()) return@setOnClickListener
@@ -177,7 +229,11 @@ class ListEntryActivity : AppCompatActivity() {
             images.removeAt(imgPos)
             while (imgPos >= images.size) imgPos--
 
-            binding.devicePhotoView.setImageBitmap(images[imgPos])
+            if (imgPos < 0) {
+                binding.devicePhotoView.setImageDrawable(emptyImgIcon)
+                imgPos = 0
+            }
+            else binding.devicePhotoView.setImageBitmap(images[imgPos].bitmap)
             updateButtons()
         }
 

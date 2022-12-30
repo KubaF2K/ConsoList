@@ -76,6 +76,7 @@
             android:textColorHint="#757575" />
         <!--        TODO location-->
         <TextView
+            android:id="@+id/photosTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/photos" />
@@ -108,8 +109,13 @@
                 android:enabled="false"
                 android:src="@android:drawable/ic_media_next"
                 android:background="@color/cardview_dark_background"
-                android:contentDescription="@string/next_image"
-                android:layout_marginEnd="@android:dimen/thumbnail_width"/>
+                android:contentDescription="@string/next_image"/>
+            <Button
+                android:id="@+id/setImgBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="@string/set_image"/>
             <ImageButton
                 android:id="@+id/addImgBtn"
                 android:layout_width="48dp"
@@ -117,6 +123,13 @@
                 android:src="@android:drawable/ic_menu_add"
                 android:background="@color/cardview_dark_background"
                 android:contentDescription="@string/add_image" />
+            <ImageButton
+                android:id="@+id/cameraBtn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/ic_menu_camera"
+                android:background="@color/cardview_dark_background"
+                android:contentDescription="@string/take_photo" />
             <ImageButton
                 android:id="@+id/delImgBtn"
                 android:layout_width="48dp"
