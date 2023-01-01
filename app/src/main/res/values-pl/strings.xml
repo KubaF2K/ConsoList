@@ -3,7 +3,7 @@
     <string name="title_list">Lista</string>
     <string name="title_devices">Urządzenia</string>
     <string name="add">Dodaj</string>
-    <string name="accessories">Akcesoria:</string>
+    <string name="accessories">Akcesoria</string>
     <string name="device_image_desc">Obraz urządzenia</string>
     <string name="edit">Edytuj</string>
     <string name="delete">Usuń</string>
@@ -16,4 +16,9 @@
     <string name="add_image">Dodaj zdjęcie</string>
     <string name="del_image">Usuń zdjęcie</string>
     <string name="photos">Zdjęcia</string>
+    <string name="set_image">Ustaw zdjęcie jako główne</string>
+    <string name="take_photo">Zrób zdjęcie</string>
+    <string name="add_accessory">Dodaj akcesorium</string>
+    <string name="accessory_image">Obraz akcesorium</string>
+    <string name="controller">Kontroler</string>
 </resources>

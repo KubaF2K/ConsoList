@@ -17,7 +17,7 @@
         tools:ignore="ImageContrastCheck" />
 
     <TextView
-        android:id="@+id/consoleNameTextView"
+        android:id="@+id/deviceNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Console Name"
@@ -138,12 +138,22 @@
                 android:src="@android:drawable/ic_menu_delete"
                 android:background="@color/cardview_dark_background"
                 android:contentDescription="@string/del_image" />
-
-
         </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/accessories" />
+        <ImageButton
+            android:id="@+id/addAccessoryBtn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@android:drawable/ic_menu_add"
+            android:contentDescription="@string/add_accessory" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/accessoryRecyclerView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-
-        <!--        TODO images-->
         <!--        TODO accessories-->
     </LinearLayout>
 

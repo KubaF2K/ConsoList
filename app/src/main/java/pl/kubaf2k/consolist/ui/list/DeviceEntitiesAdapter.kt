@@ -32,8 +32,8 @@ class DeviceEntitiesAdapter: RecyclerView.Adapter<DeviceEntitiesViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: DeviceEntitiesViewHolder, position: Int) {
-        val name: TextView = holder.itemView.findViewById(R.id.consoleNameTextView)
-        val description: TextView = holder.itemView.findViewById(R.id.consoleDescTextView)
+        val name: TextView = holder.itemView.findViewById(R.id.deviceNameTextView)
+        val description: TextView = holder.itemView.findViewById(R.id.deviceDescTextView)
         val editBT: Button = holder.itemView.findViewById(R.id.editButton)
         val deleteBT: Button = holder.itemView.findViewById(R.id.deleteButton)
         val image: ImageView = holder.itemView.findViewById(R.id.deviceImageView)
@@ -49,7 +49,7 @@ class DeviceEntitiesAdapter: RecyclerView.Adapter<DeviceEntitiesViewHolder>() {
         description.text = "Stan: ${deviceEntity.condition}"
 
         if (deviceEntity.images.isNotEmpty()) {
-            image.setImageBitmap(deviceEntity.images[0])
+            image.setImageBitmap(deviceEntity.images[0].bitmap)
         } else {
             parent.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
                 getBitmapFromURL(deviceEntity.model.imgURL)?.let {

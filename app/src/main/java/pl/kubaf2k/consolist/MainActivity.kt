@@ -15,10 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pl.kubaf2k.consolist.MainActivity.Companion.cachedImages
 import pl.kubaf2k.consolist.databinding.ActivityMainBinding
-import pl.kubaf2k.consolist.dataclasses.Device
-import pl.kubaf2k.consolist.dataclasses.Model
-import pl.kubaf2k.consolist.dataclasses.DeviceEntity
-import pl.kubaf2k.consolist.dataclasses.SerializableBitmap
+import pl.kubaf2k.consolist.dataclasses.*
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
@@ -78,7 +75,14 @@ class MainActivity : AppCompatActivity() {
                     listOf("SCPH-90000")
                 )
             ),
-            listOf()
+            listOf(
+                Accessory(
+                    "Dualshock 2",
+                    URL("https://rukminim1.flixcart.com/image/1664/1664/gamepad/wired/n/f/y/sony-playstation-2-dualshock-2-analog-controller-original-imaef2732hhfxhav.jpeg"),
+                    "SCPH-10010",
+                    Accessory.AccessoryType.CONTROLLER
+                )
+            )
         ))
         val deviceEntities = mutableListOf(DeviceEntity(
             devices[0],
@@ -87,7 +91,9 @@ class MainActivity : AppCompatActivity() {
             "Good",
             null,
             emptyList(),
-            emptyList()
+            listOf(
+                AccessoryEntity(devices[0].accessories[0], "Good", emptyList())
+            )
         ))
         val cachedImages: MutableMap<URL, Bitmap> = HashMap()
     }

@@ -3,14 +3,14 @@
     <string name="title_list">List</string>
     <string name="title_devices">Devices</string>
     <string name="add">Add</string>
-    <string name="accessories">Accessories:</string>
+    <string name="accessories">Accessories</string>
     <string name="device_image_desc">Device Image</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="condition">Condition</string>
     <string name="save">Save</string>
     <string name="model_number">Model Number</string>
-    <string name="other">Other…</string>
+    <string name="other">Other</string>
     <string name="prev_image">Previous image</string>
     <string name="next_image">Next image</string>
     <string name="add_image">Add image</string>
@@ -18,4 +18,7 @@
     <string name="photos">Photos</string>
     <string name="set_image">Set image as thumbnail</string>
     <string name="take_photo">Take photo</string>
+    <string name="add_accessory">Add accessory</string>
+    <string name="accessory_image">Accessory image</string>
+    <string name="controller">Controller</string>
 </resources>

@@ -31,8 +31,8 @@ class DevicesAdapter: RecyclerView.Adapter<DevicesViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: DevicesViewHolder, position: Int) {
-        val name: TextView = holder.itemView.findViewById(R.id.consoleNameTextView)
-        val description: TextView = holder.itemView.findViewById(R.id.consoleDescTextView)
+        val name: TextView = holder.itemView.findViewById(R.id.deviceNameTextView)
+        val description: TextView = holder.itemView.findViewById(R.id.deviceDescTextView)
         val addBT: Button = holder.itemView.findViewById(R.id.addButton)
         val image: ImageView = holder.itemView.findViewById(R.id.deviceImageView)
 

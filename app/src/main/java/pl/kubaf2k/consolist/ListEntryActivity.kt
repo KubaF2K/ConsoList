@@ -11,13 +11,12 @@ import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import pl.kubaf2k.consolist.databinding.ActivityListEntryBinding
-import pl.kubaf2k.consolist.dataclasses.Device
-import pl.kubaf2k.consolist.dataclasses.DeviceEntity
-import pl.kubaf2k.consolist.dataclasses.Model
-import pl.kubaf2k.consolist.dataclasses.SerializableBitmap
+import pl.kubaf2k.consolist.dataclasses.*
+import pl.kubaf2k.consolist.ui.AccessoryEntityAdapter
 import pl.kubaf2k.consolist.ui.list.ListFragment
 import java.io.File
 import java.util.*
@@ -35,6 +34,7 @@ class ListEntryActivity : AppCompatActivity() {
     private var index: Int = -1
     private val images = LinkedList<SerializableBitmap>()
     private var imgPos = 0
+    private val accessories = ArrayList<AccessoryEntity>()
 
     private var imgJob: Job? = null
     private var tempUri: Uri? = null
@@ -75,13 +75,14 @@ class ListEntryActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         intent.extras?.let { bundle ->
+            bundle.get("device")?.let {
+                device = MainActivity.devices[it as Int]
+            }
             bundle.get("index")?.let {
                 index = it as Int
                 oldEntity = MainActivity.deviceEntities[index]
                 device = oldEntity.device
-            }
-            bundle.get("device")?.let {
-                device = MainActivity.devices[it as Int]
+                accessories.addAll(oldEntity.accessories)
             }
         }
 
@@ -93,7 +94,7 @@ class ListEntryActivity : AppCompatActivity() {
             }
         }
 
-        binding.consoleNameTextView.text = "${device.manufacturer} ${device.name}"
+        binding.deviceNameTextView.text = "${device.manufacturer} ${device.name}"
 
         if (device.models.size > 1) {
             val modelArrayAdapter: ArrayAdapter<CharSequence> =
@@ -236,7 +237,6 @@ class ListEntryActivity : AppCompatActivity() {
             else binding.devicePhotoView.setImageBitmap(images[imgPos].bitmap)
             updateButtons()
         }
-
         binding.saveButton.setOnClickListener {
             val deviceEntity = DeviceEntity(
                 device,
@@ -247,7 +247,8 @@ class ListEntryActivity : AppCompatActivity() {
                     binding.modelNumberSpinner.selectedItem.toString()
                 },
                 binding.conditionEditText.text.toString(),
-                images = images
+                images = images,
+                accessories = accessories
             )
 
             if (index == -1)
@@ -258,5 +259,8 @@ class ListEntryActivity : AppCompatActivity() {
             }
             finish()
         }
+
+        binding.accessoryRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.accessoryRecyclerView.adapter = AccessoryEntityAdapter(accessories)
     }
 }
