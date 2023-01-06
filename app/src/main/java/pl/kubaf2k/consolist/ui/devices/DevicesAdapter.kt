@@ -1,23 +1,32 @@
 package pl.kubaf2k.consolist.ui.devices
 
+import android.app.Activity
 import android.content.Intent
 import android.view.LayoutInflater
-import androidx.recyclerview.widget.RecyclerView
-import androidx.lifecycle.lifecycleScope
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.ActivityResultCaller
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import pl.kubaf2k.consolist.ListEntryActivity
 import pl.kubaf2k.consolist.MainActivity
 import pl.kubaf2k.consolist.R
+import pl.kubaf2k.consolist.dataclasses.DeviceEntity
 import pl.kubaf2k.consolist.getBitmapFromURL
 
-class DevicesAdapter: RecyclerView.Adapter<DevicesViewHolder>() {
+class DevicesAdapter(activityCaller: ActivityResultCaller): RecyclerView.Adapter<DevicesViewHolder>() {
     private lateinit var parent: ViewGroup
+
+    private val addDeviceEntityContract = activityCaller.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
+        result.data?.getParcelableExtra<DeviceEntity>("resultDevice")?.let { MainActivity.deviceEntities.add(it) }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DevicesViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -52,10 +61,9 @@ class DevicesAdapter: RecyclerView.Adapter<DevicesViewHolder>() {
         }
 
         addBT.setOnClickListener {
-            val addIntent = Intent(parent.context, ListEntryActivity::class.java).apply {
-                putExtra("device", holder.adapterPosition)
-            }
-            parent.context.startActivity(addIntent)
+            val addIntent = Intent(parent.context, ListEntryActivity::class.java)
+                .putExtra("device", holder.adapterPosition)
+            addDeviceEntityContract.launch(addIntent)
         }
     }
 }

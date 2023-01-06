@@ -29,7 +29,7 @@ class DevicesFragment : Fragment() {
         val root: View = binding.root
 
         binding.deviceRecyclerView.layoutManager = LinearLayoutManager(context)
-        binding.deviceRecyclerView.adapter = DevicesAdapter()
+        binding.deviceRecyclerView.adapter = DevicesAdapter(this)
 
         return root
     }

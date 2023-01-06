@@ -1,14 +1,18 @@
 package pl.kubaf2k.consolist
 
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap46
 import android.graphics.ImageDecoder
-import android.graphics.drawable.Drawable
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,25 +20,31 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import pl.kubaf2k.consolist.databinding.ActivityListEntryBinding
 import pl.kubaf2k.consolist.dataclasses.*
-import pl.kubaf2k.consolist.ui.AccessoryEntityAdapter
-import pl.kubaf2k.consolist.ui.list.ListFragment
+import pl.kubaf2k.consolist.ui.AccessoryEntitiesAdapter
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
 
 class ListEntryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityListEntryBinding
+
+    //index of old entity in the deviceEntities list, or in the case of accessories of the old entity in the accessories list of the parent
+    //if -1 then add instead of edit
+    private var index: Int = -1
+
     private lateinit var device: Device
     private lateinit var oldEntity: DeviceEntity
-
-    private lateinit var emptyImgIcon: Drawable
-
     private var model: Model? = null
     private var modelNumber = ""
-    private var index: Int = -1
-    private val images = LinkedList<SerializableBitmap>()
-    private var imgPos = 0
     private val accessories = ArrayList<AccessoryEntity>()
+
+    //if the "parent" extra is set then this is set to true
+    private var isAccessory = false
+    private lateinit var accessory: Accessory
+    private lateinit var parent: DeviceEntity
+    private lateinit var oldAccessoryEntity: AccessoryEntity
+
+    private val images = LinkedList<Bitmap>()
+    private var imgPos = 0
 
     private var imgJob: Job? = null
     private var tempUri: Uri? = null
@@ -49,9 +59,9 @@ class ListEntryActivity : AppCompatActivity() {
 
     private val imagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri -> uri?.let {
         val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, it))
-        images.add(SerializableBitmap(bitmap))
+        images.add(bitmap)
         imgPos = images.size - 1
-        binding.devicePhotoView.setImageBitmap(images[imgPos].bitmap)
+        binding.devicePhotoView.setImageBitmap(images[imgPos])
 
         updateButtons()
     }}
@@ -60,12 +70,33 @@ class ListEntryActivity : AppCompatActivity() {
 
         tempUri?.let { uri ->
             val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri))
-            images.add(SerializableBitmap(bitmap))
+            images.add(bitmap)
             imgPos = images.size - 1
-            binding.devicePhotoView.setImageBitmap(images[imgPos].bitmap)
+            binding.devicePhotoView.setImageBitmap(images[imgPos])
 
             updateButtons()
         }
+    }
+
+    private val addOrEditAccessoryContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
+
+        val index = result.data?.getIntExtra("index", -1) ?: -1
+
+        if (index != -1) {
+            result.data?.getParcelableExtra<AccessoryEntity>("resultDevice")?.let { accessories[index] = it }
+            binding.accessoryRecyclerView.adapter?.notifyItemChanged(index)
+        }
+        else {
+            result.data?.getParcelableExtra<AccessoryEntity>("resultDevice")?.let { accessories.add(it) }
+            binding.accessoryRecyclerView.adapter?.notifyItemInserted(accessories.size - 1)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        binding.accessoryRecyclerView.adapter?.notifyDataSetChanged()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,28 +106,46 @@ class ListEntryActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         intent.extras?.let { bundle ->
-            bundle.get("device")?.let {
-                device = MainActivity.devices[it as Int]
+            //the id of the accessory's parent device in the deviceEntities list, required for accessories
+            bundle.get("parent")?.let {
+                isAccessory = true
+                parent = MainActivity.deviceEntities[it as Int]
             }
+            //index of the device in the devices list, or in the case of accessories in the parent's device's accessories list
+            bundle.get("device")?.let {
+                if (isAccessory) accessory = parent.device.accessories[it as Int]
+                else device = MainActivity.devices[it as Int]
+            }
+            //index of old entity in the deviceEntities list, or in the case of accessories of the old entity in the accessories list of the parent
             bundle.get("index")?.let {
                 index = it as Int
-                oldEntity = MainActivity.deviceEntities[index]
-                device = oldEntity.device
-                accessories.addAll(oldEntity.accessories)
+                if (isAccessory) {
+                    oldAccessoryEntity = parent.accessories[index]
+                }
+                else {
+                    oldEntity = MainActivity.deviceEntities[index]
+                    device = oldEntity.device
+                    accessories.addAll(oldEntity.accessories)
+                }
             }
         }
 
-        emptyImgIcon = binding.deviceImageView.drawable
-
         lifecycleScope.launch {
-            getBitmapFromURL(device.imgURL)?.let{
+            getBitmapFromURL(if (isAccessory) accessory.imgURL else device.imgURL)?.let{
                 binding.deviceImageView.setImageBitmap(it)
             }
         }
 
-        binding.deviceNameTextView.text = "${device.manufacturer} ${device.name}"
+        if (isAccessory) {
+//            TODO visibility.gone the location
+            binding.accessoriesTextView.visibility = View.GONE
+            binding.addAccessoryBtn.visibility = View.GONE
+            binding.accessoryRecyclerView.visibility = View.GONE
+        }
 
-        if (device.models.size > 1) {
+        binding.deviceNameTextView.text = if (isAccessory) "${accessory.name} (${accessory.modelNumber})" else "${device.manufacturer} ${device.name}"
+
+        if (!isAccessory && device.models.size > 1) {
             val modelArrayAdapter: ArrayAdapter<CharSequence> =
                 ArrayAdapter(this, android.R.layout.simple_spinner_item, device.models.map { it.name })
             binding.modelSpinner.adapter = modelArrayAdapter
@@ -176,31 +225,41 @@ class ListEntryActivity : AppCompatActivity() {
                 }
             }
         } else {
-            model = device.models[0]
+            if(!isAccessory)
+                model = device.models[0]
         }
 
         if (index != -1) {
-            val deviceEntity = oldEntity
+            if (isAccessory) {
+                binding.conditionEditText.setText(oldAccessoryEntity.condition)
 
-            binding.conditionEditText.setText(deviceEntity.condition)
+                if (oldAccessoryEntity.images.isNotEmpty()) {
+                    images.addAll(oldAccessoryEntity.images)
 
-            if (oldEntity.images.isNotEmpty()) {
-                images.addAll(oldEntity.images)
+                    binding.devicePhotoView.setImageBitmap(images[imgPos])
+                }
+            }
+            else {
+                binding.conditionEditText.setText(oldEntity.condition)
 
-                binding.devicePhotoView.setImageBitmap(images[imgPos].bitmap)
+                if (oldEntity.images.isNotEmpty()) {
+                    images.addAll(oldEntity.images)
+
+                    binding.devicePhotoView.setImageBitmap(images[imgPos])
+                }
             }
         }
 
         binding.prevImgBtn.setOnClickListener {
             if (imgPos <= 0) return@setOnClickListener
 
-            binding.devicePhotoView.setImageBitmap(images[--imgPos].bitmap)
+            binding.devicePhotoView.setImageBitmap(images[--imgPos])
             updateButtons()
         }
         binding.nextImgBtn.setOnClickListener {
             if (imgPos >= images.size-1) return@setOnClickListener
 
-            binding.devicePhotoView.setImageBitmap(images[++imgPos].bitmap)
+            binding.devicePhotoView.setImageBitmap(images[++imgPos])
             updateButtons()
         }
         binding.setImgBtn.setOnClickListener {
@@ -231,14 +290,40 @@ class ListEntryActivity : AppCompatActivity() {
             while (imgPos >= images.size) imgPos--
 
             if (imgPos < 0) {
-                binding.devicePhotoView.setImageDrawable(emptyImgIcon)
+                binding.devicePhotoView.setImageDrawable(getDrawable(android.R.drawable.ic_menu_gallery))
                 imgPos = 0
             }
-            else binding.devicePhotoView.setImageBitmap(images[imgPos].bitmap)
+            else binding.devicePhotoView.setImageBitmap(images[imgPos])
             updateButtons()
         }
+        binding.addAccessoryBtn.setOnClickListener {
+            if (index == -1)
+                AlertDialog.Builder(this)
+                    .setTitle("Adding accessories") //TODO string
+                    .setMessage("To add an accessory you must save this device first. Do you want to save?")
+                    .setPositiveButton(android.R.string.ok) { _, _ -> binding.saveButton.callOnClick() }
+                    .setNegativeButton(android.R.string.cancel, null )
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
+            else {
+                val accArray = Array<CharSequence>(device.accessories.size) { index -> device.accessories[index].name }
+                AlertDialog.Builder(this)
+                    .setTitle("Select an accessory") //TODO string
+                    .setItems(accArray) { _, which ->
+                        val addIntent = Intent(this, ListEntryActivity::class.java)
+                            .putExtra("parent", index)
+                            .putExtra("device", which)
+                        addOrEditAccessoryContract.launch(addIntent)
+                    }.show()
+            }
+        }
+        //TODO not working with images
         binding.saveButton.setOnClickListener {
-            val deviceEntity = DeviceEntity(
+            val resultDevice: Parcelable = if (isAccessory) AccessoryEntity(
+                accessory,
+                binding.conditionEditText.text.toString(),
+                images
+            ) else DeviceEntity(
                 device,
                 model ?: device.models[0],
                 if (binding.modelNumberEditText.visibility == View.VISIBLE) {
@@ -251,16 +336,25 @@ class ListEntryActivity : AppCompatActivity() {
                 accessories = accessories
             )
 
-            if (index == -1)
-                MainActivity.deviceEntities.add(deviceEntity)
-            else {
-                MainActivity.deviceEntities[index] = deviceEntity
-                ListFragment.deviceRecyclerView.adapter?.notifyItemChanged(index)
-            }
+
+
+//                if (index == -1)
+//                    MainActivity.deviceEntities.add(deviceEntity)
+//                else {
+//                    MainActivity.deviceEntities[index] = deviceEntity
+//                    ListFragment.deviceRecyclerView.adapter?.notifyItemChanged(index)
+//                }
+
+            setResult(Activity.RESULT_OK, Intent()
+                .putExtra("index", index)
+                .putExtra("resultDevice", resultDevice)
+            )
             finish()
         }
 
-        binding.accessoryRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.accessoryRecyclerView.adapter = AccessoryEntityAdapter(accessories)
+        if (!isAccessory) {
+            binding.accessoryRecyclerView.layoutManager = LinearLayoutManager(this)
+            if (index != -1) binding.accessoryRecyclerView.adapter = AccessoryEntitiesAdapter(addOrEditAccessoryContract, index, accessories)
+        }
     }
 }

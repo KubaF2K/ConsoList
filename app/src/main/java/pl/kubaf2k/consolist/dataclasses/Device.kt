@@ -1,25 +1,31 @@
 package pl.kubaf2k.consolist.dataclasses
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.net.URL
-import java.io.Serializable
 
+@Parcelize
 data class Model(
     val name: String,
     val imgURL: URL,
     val modelNumbers: List<String>
-): Serializable
+): Parcelable
 
+@Parcelize
 data class Accessory(
     val name: String,
     val imgURL: URL,
     val modelNumber: String?,
     val type: AccessoryType
-): Serializable {
-    enum class AccessoryType {
+): Parcelable {
+    @Parcelize
+    enum class AccessoryType: Parcelable {
         CONTROLLER,
         OTHER
     }
 }
+
+@Parcelize
 data class Device(
     val name: String,
     val description: String,
@@ -28,4 +34,4 @@ data class Device(
     val releaseYear: Int,
     val models: List<Model>,
     val accessories: List<Accessory>
-): Serializable
+): Parcelable

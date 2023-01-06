@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             ),
             listOf(
                 Accessory(
-                    "Dualshock 2",
+                    "DualShock 2",
                     URL("https://rukminim1.flixcart.com/image/1664/1664/gamepad/wired/n/f/y/sony-playstation-2-dualshock-2-analog-controller-original-imaef2732hhfxhav.jpeg"),
                     "SCPH-10010",
                     Accessory.AccessoryType.CONTROLLER
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             "Good",
             null,
             emptyList(),
-            listOf(
+            mutableListOf(
                 AccessoryEntity(devices[0].accessories[0], "Good", emptyList())
             )
         ))
@@ -103,13 +103,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val images = LinkedList<SerializableBitmap>()
+        val images = LinkedList<Bitmap>()
 
         lifecycleScope.launch {
             var image = getBitmapFromURL(URL("https://www.justpushstart.com/wp-content/uploads/2013/01/ps2-console.jpg"))
-            image?.let { images.add(SerializableBitmap(it)) }
+            image?.let { images.add(it) }
             image = getBitmapFromURL(URL("https://lowendmac.com/wp-content/uploads/ps2-slim.jpg"))
-            image?.let { images.add(SerializableBitmap(it)) }
+            image?.let { images.add(it) }
             deviceEntities.add(DeviceEntity(
                 devices[0],
                 0,
@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity() {
                 "Good",
                 null,
                 images,
-                emptyList()
+                mutableListOf()
             ))
         }
 

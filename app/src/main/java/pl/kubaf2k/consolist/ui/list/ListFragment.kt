@@ -35,7 +35,7 @@ class ListFragment : Fragment() {
         deviceRecyclerView = binding.deviceRecyclerView
 
         binding.deviceRecyclerView.layoutManager = LinearLayoutManager(context)
-        binding.deviceRecyclerView.adapter = DeviceEntitiesAdapter()
+        binding.deviceRecyclerView.adapter = DeviceEntitiesAdapter(this)
 
         return root
     }

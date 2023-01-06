@@ -1,21 +1,30 @@
 package pl.kubaf2k.consolist.ui
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.ActivityResultCaller
+import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
+import pl.kubaf2k.consolist.ListEntryActivity
+import pl.kubaf2k.consolist.MainActivity
 import pl.kubaf2k.consolist.R
 import pl.kubaf2k.consolist.dataclasses.AccessoryEntity
 import pl.kubaf2k.consolist.getBitmapFromURL
 import java.util.*
 
-class AccessoryEntityAdapter(private val accessories: MutableList<AccessoryEntity>): RecyclerView.Adapter<AccessoryEntityViewHolder>() {
+class AccessoryEntitiesAdapter(
+    private val addOrEditAccessoryContract: ActivityResultLauncher<Intent>,
+    private val deviceIndex: Int,
+    private val accessories: MutableList<AccessoryEntity>
+): RecyclerView.Adapter<AccessoryEntityViewHolder>() {
     private lateinit var parent: ViewGroup
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AccessoryEntityViewHolder {
@@ -38,7 +47,7 @@ class AccessoryEntityAdapter(private val accessories: MutableList<AccessoryEntit
 
         val deviceEntity = accessories[holder.adapterPosition]
 
-        name.text = "${deviceEntity.device.name} (${deviceEntity.device.name})"
+        name.text = "${deviceEntity.device.name} (${deviceEntity.device.modelNumber})"
         if (name.text.length > 30)
             name.text = "${name.text.slice(0..30)}..."
 
@@ -50,7 +59,7 @@ class AccessoryEntityAdapter(private val accessories: MutableList<AccessoryEntit
         )}\nStan: ${deviceEntity.condition}"
 
         if (deviceEntity.images.isNotEmpty()) {
-            image.setImageBitmap(deviceEntity.images[0].bitmap)
+            image.setImageBitmap(deviceEntity.images[0])
         } else {
             parent.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
                 getBitmapFromURL(deviceEntity.device.imgURL)?.let {
@@ -60,7 +69,11 @@ class AccessoryEntityAdapter(private val accessories: MutableList<AccessoryEntit
         }
 
         editBT.setOnClickListener {
-            TODO()
+            val editIntent = Intent(parent.context, ListEntryActivity::class.java)
+                .putExtra("parent", deviceIndex)
+                .putExtra("index", holder.adapterPosition)
+                .putExtra("device", MainActivity.deviceEntities[deviceIndex].device.accessories.indexOf(deviceEntity.device))
+            addOrEditAccessoryContract.launch(editIntent)
         }
         deleteBT.setOnClickListener {
             accessories.removeAt(holder.adapterPosition)
