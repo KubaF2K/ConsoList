@@ -2,7 +2,6 @@ package pl.kubaf2k.consolist
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap46
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
@@ -43,11 +42,13 @@ class ListEntryActivity : AppCompatActivity() {
     private lateinit var parent: DeviceEntity
     private lateinit var oldAccessoryEntity: AccessoryEntity
 
-    private val images = LinkedList<Bitmap>()
+    private val images = LinkedList<Int>()
     private var imgPos = 0
 
     private var imgJob: Job? = null
     private var tempUri: Uri? = null
+
+    private fun fFinish() { finish() }
 
     private fun updateButtons() {
         binding.prevImgBtn.isEnabled = imgPos > 0
@@ -59,9 +60,11 @@ class ListEntryActivity : AppCompatActivity() {
 
     private val imagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri -> uri?.let {
         val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, it))
-        images.add(bitmap)
+        val bitmapHash = bitmap.hashCode()
+        MainActivity.cachedLocalImages[bitmapHash] = bitmap
+        images.add(bitmapHash)
         imgPos = images.size - 1
-        binding.devicePhotoView.setImageBitmap(images[imgPos])
+        binding.devicePhotoView.setImageBitmap(MainActivity.cachedLocalImages[images[imgPos]])
 
         updateButtons()
     }}
@@ -70,9 +73,10 @@ class ListEntryActivity : AppCompatActivity() {
 
         tempUri?.let { uri ->
             val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri))
-            images.add(bitmap)
+            val bitmapHash = bitmap.hashCode()
+            images.add(bitmapHash)
             imgPos = images.size - 1
-            binding.devicePhotoView.setImageBitmap(images[imgPos])
+            binding.devicePhotoView.setImageBitmap(MainActivity.cachedLocalImages[images[imgPos]])
 
             updateButtons()
         }
@@ -81,14 +85,14 @@ class ListEntryActivity : AppCompatActivity() {
     private val addOrEditAccessoryContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
 
-        val index = result.data?.getIntExtra("index", -1) ?: -1
+        val index = result.data?.getIntExtra("pl.kubaf2k.consolist.index", -1) ?: -1
 
         if (index != -1) {
-            result.data?.getParcelableExtra<AccessoryEntity>("resultDevice")?.let { accessories[index] = it }
+            result.data?.getParcelableExtra<AccessoryEntity>("pl.kubaf2k.consolist.resultDevice")?.let { accessories[index] = it }
             binding.accessoryRecyclerView.adapter?.notifyItemChanged(index)
         }
         else {
-            result.data?.getParcelableExtra<AccessoryEntity>("resultDevice")?.let { accessories.add(it) }
+            result.data?.getParcelableExtra<AccessoryEntity>("pl.kubaf2k.consolist.resultDevice")?.let { accessories.add(it) }
             binding.accessoryRecyclerView.adapter?.notifyItemInserted(accessories.size - 1)
         }
     }
@@ -107,17 +111,17 @@ class ListEntryActivity : AppCompatActivity() {
 
         intent.extras?.let { bundle ->
             //the id of the accessory's parent device in the deviceEntities list, required for accessories
-            bundle.get("parent")?.let {
+            bundle.get("pl.kubaf2k.consolist.parent")?.let {
                 isAccessory = true
                 parent = MainActivity.deviceEntities[it as Int]
             }
             //index of the device in the devices list, or in the case of accessories in the parent's device's accessories list
-            bundle.get("device")?.let {
+            bundle.get("pl.kubaf2k.consolist.device")?.let {
                 if (isAccessory) accessory = parent.device.accessories[it as Int]
                 else device = MainActivity.devices[it as Int]
             }
             //index of old entity in the deviceEntities list, or in the case of accessories of the old entity in the accessories list of the parent
-            bundle.get("index")?.let {
+            bundle.get("pl.kubaf2k.consolist.index")?.let {
                 index = it as Int
                 if (isAccessory) {
                     oldAccessoryEntity = parent.accessories[index]
@@ -233,19 +237,19 @@ class ListEntryActivity : AppCompatActivity() {
             if (isAccessory) {
                 binding.conditionEditText.setText(oldAccessoryEntity.condition)
 
-                if (oldAccessoryEntity.images.isNotEmpty()) {
-                    images.addAll(oldAccessoryEntity.images)
+                if (oldAccessoryEntity.imageHashes.isNotEmpty()) {
+                    images.addAll(oldAccessoryEntity.imageHashes)
 
-                    binding.devicePhotoView.setImageBitmap(images[imgPos])
+                    binding.devicePhotoView.setImageBitmap(MainActivity.cachedLocalImages[images[imgPos]])
                 }
             }
             else {
                 binding.conditionEditText.setText(oldEntity.condition)
 
-                if (oldEntity.images.isNotEmpty()) {
-                    images.addAll(oldEntity.images)
+                if (oldEntity.imageHashes.isNotEmpty()) {
+                    images.addAll(oldEntity.imageHashes)
 
-                    binding.devicePhotoView.setImageBitmap(images[imgPos])
+                    binding.devicePhotoView.setImageBitmap(MainActivity.cachedLocalImages[images[imgPos]])
                 }
             }
         }
@@ -253,13 +257,13 @@ class ListEntryActivity : AppCompatActivity() {
         binding.prevImgBtn.setOnClickListener {
             if (imgPos <= 0) return@setOnClickListener
 
-            binding.devicePhotoView.setImageBitmap(images[--imgPos])
+            binding.devicePhotoView.setImageBitmap(MainActivity.cachedLocalImages[images[--imgPos]])
             updateButtons()
         }
         binding.nextImgBtn.setOnClickListener {
             if (imgPos >= images.size-1) return@setOnClickListener
 
-            binding.devicePhotoView.setImageBitmap(images[++imgPos])
+            binding.devicePhotoView.setImageBitmap(MainActivity.cachedLocalImages[images[++imgPos]])
             updateButtons()
         }
         binding.setImgBtn.setOnClickListener {
@@ -293,14 +297,14 @@ class ListEntryActivity : AppCompatActivity() {
                 binding.devicePhotoView.setImageDrawable(getDrawable(android.R.drawable.ic_menu_gallery))
                 imgPos = 0
             }
-            else binding.devicePhotoView.setImageBitmap(images[imgPos])
+            else binding.devicePhotoView.setImageBitmap(MainActivity.cachedLocalImages[images[imgPos]])
             updateButtons()
         }
         binding.addAccessoryBtn.setOnClickListener {
             if (index == -1)
                 AlertDialog.Builder(this)
-                    .setTitle("Adding accessories") //TODO string
-                    .setMessage("To add an accessory you must save this device first. Do you want to save?")
+                    .setTitle(R.string.add_accessories)
+                    .setMessage(R.string.add_accessories_msg)
                     .setPositiveButton(android.R.string.ok) { _, _ -> binding.saveButton.callOnClick() }
                     .setNegativeButton(android.R.string.cancel, null )
                     .setIcon(android.R.drawable.ic_dialog_alert)
@@ -308,16 +312,15 @@ class ListEntryActivity : AppCompatActivity() {
             else {
                 val accArray = Array<CharSequence>(device.accessories.size) { index -> device.accessories[index].name }
                 AlertDialog.Builder(this)
-                    .setTitle("Select an accessory") //TODO string
+                    .setTitle(R.string.select_accessory)
                     .setItems(accArray) { _, which ->
                         val addIntent = Intent(this, ListEntryActivity::class.java)
-                            .putExtra("parent", index)
-                            .putExtra("device", which)
+                            .putExtra("pl.kubaf2k.consolist.parent", index)
+                            .putExtra("pl.kubaf2k.consolist.device", which)
                         addOrEditAccessoryContract.launch(addIntent)
                     }.show()
             }
         }
-        //TODO not working with images
         binding.saveButton.setOnClickListener {
             val resultDevice: Parcelable = if (isAccessory) AccessoryEntity(
                 accessory,
@@ -332,7 +335,7 @@ class ListEntryActivity : AppCompatActivity() {
                     binding.modelNumberSpinner.selectedItem.toString()
                 },
                 binding.conditionEditText.text.toString(),
-                images = images,
+                imageHashes = images,
                 accessories = accessories
             )
 
@@ -345,11 +348,13 @@ class ListEntryActivity : AppCompatActivity() {
 //                    ListFragment.deviceRecyclerView.adapter?.notifyItemChanged(index)
 //                }
 
-            setResult(Activity.RESULT_OK, Intent()
-                .putExtra("index", index)
-                .putExtra("resultDevice", resultDevice)
-            )
-            finish()
+
+            val result = Intent()
+                .putExtra("pl.kubaf2k.consolist.index", index)
+                .putExtra("pl.kubaf2k.consolist.resultDevice", resultDevice)
+            setResult(Activity.RESULT_OK, result)
+            fFinish()
+            return@setOnClickListener
         }
 
         if (!isAccessory) {

@@ -25,7 +25,7 @@ class DevicesAdapter(activityCaller: ActivityResultCaller): RecyclerView.Adapter
 
     private val addDeviceEntityContract = activityCaller.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
-        result.data?.getParcelableExtra<DeviceEntity>("resultDevice")?.let { MainActivity.deviceEntities.add(it) }
+        result.data?.getParcelableExtra<DeviceEntity>("pl.kubaf2k.consolist.resultDevice")?.let { MainActivity.deviceEntities.add(it) }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DevicesViewHolder {
@@ -62,7 +62,7 @@ class DevicesAdapter(activityCaller: ActivityResultCaller): RecyclerView.Adapter
 
         addBT.setOnClickListener {
             val addIntent = Intent(parent.context, ListEntryActivity::class.java)
-                .putExtra("device", holder.adapterPosition)
+                .putExtra("pl.kubaf2k.consolist.device", holder.adapterPosition)
             addDeviceEntityContract.launch(addIntent)
         }
     }

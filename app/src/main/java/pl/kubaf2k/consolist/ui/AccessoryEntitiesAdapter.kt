@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -58,8 +57,8 @@ class AccessoryEntitiesAdapter(
             )
         )}\nStan: ${deviceEntity.condition}"
 
-        if (deviceEntity.images.isNotEmpty()) {
-            image.setImageBitmap(deviceEntity.images[0])
+        if (deviceEntity.imageHashes.isNotEmpty()) {
+            image.setImageBitmap(MainActivity.cachedLocalImages[deviceEntity.imageHashes[0]])
         } else {
             parent.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
                 getBitmapFromURL(deviceEntity.device.imgURL)?.let {
@@ -70,9 +69,9 @@ class AccessoryEntitiesAdapter(
 
         editBT.setOnClickListener {
             val editIntent = Intent(parent.context, ListEntryActivity::class.java)
-                .putExtra("parent", deviceIndex)
-                .putExtra("index", holder.adapterPosition)
-                .putExtra("device", MainActivity.deviceEntities[deviceIndex].device.accessories.indexOf(deviceEntity.device))
+                .putExtra("pl.kubaf2k.consolist.parent", deviceIndex)
+                .putExtra("pl.kubaf2k.consolist.index", holder.adapterPosition)
+                .putExtra("pl.kubaf2k.consolist.device", MainActivity.deviceEntities[deviceIndex].device.accessories.indexOf(deviceEntity.device))
             addOrEditAccessoryContract.launch(editIntent)
         }
         deleteBT.setOnClickListener {

@@ -3,27 +3,23 @@ package pl.kubaf2k.consolist
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import pl.kubaf2k.consolist.MainActivity.Companion.cachedImages
+import pl.kubaf2k.consolist.MainActivity.Companion.cachedWebImages
 import pl.kubaf2k.consolist.databinding.ActivityMainBinding
 import pl.kubaf2k.consolist.dataclasses.*
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.*
-import kotlin.collections.HashMap
 
 suspend fun getBitmapFromURL(url: URL): Bitmap? {
-    if (cachedImages.containsKey(url))
-        return cachedImages[url]
+    if (cachedWebImages.containsKey(url))
+        return cachedWebImages[url]
 
     var bitmap: Bitmap? = null
     val bmOptions = BitmapFactory.Options().apply {
@@ -45,7 +41,7 @@ suspend fun getBitmapFromURL(url: URL): Bitmap? {
             bitmap = null
         }
     }
-    bitmap?.let { cachedImages[url] = it }
+    bitmap?.let { cachedWebImages[url] = it }
     return bitmap
 }
 
@@ -95,31 +91,14 @@ class MainActivity : AppCompatActivity() {
                 AccessoryEntity(devices[0].accessories[0], "Good", emptyList())
             )
         ))
-        val cachedImages: MutableMap<URL, Bitmap> = HashMap()
+        val cachedWebImages: MutableMap<URL, Bitmap> = HashMap()
+        val cachedLocalImages: HashMap<Int, Bitmap> = HashMap()
     }
 
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val images = LinkedList<Bitmap>()
-
-        lifecycleScope.launch {
-            var image = getBitmapFromURL(URL("https://www.justpushstart.com/wp-content/uploads/2013/01/ps2-console.jpg"))
-            image?.let { images.add(it) }
-            image = getBitmapFromURL(URL("https://lowendmac.com/wp-content/uploads/ps2-slim.jpg"))
-            image?.let { images.add(it) }
-            deviceEntities.add(DeviceEntity(
-                devices[0],
-                0,
-                0,
-                "Good",
-                null,
-                images,
-                mutableListOf()
-            ))
-        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

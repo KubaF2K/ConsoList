@@ -21,4 +21,7 @@
     <string name="add_accessory">Add accessory</string>
     <string name="accessory_image">Accessory image</string>
     <string name="controller">Controller</string>
+    <string name="add_accessories">Adding accessories</string>
+    <string name="add_accessories_msg">To add an accessory you must save this device first. Do you want to save?</string>
+    <string name="select_accessory">Select an accessory</string>
 </resources>

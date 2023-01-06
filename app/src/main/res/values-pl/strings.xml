@@ -21,4 +21,7 @@
     <string name="add_accessory">Dodaj akcesorium</string>
     <string name="accessory_image">Obraz akcesorium</string>
     <string name="controller">Kontroler</string>
+    <string name="add_accessories">Dodawanie akcesoriów</string>
+    <string name="add_accessories_msg">Aby dodać akcesorium musisz najpierw zapisać to urządzenie. Czy chcesz je zapisać?</string>
+    <string name="select_accessory">Wybierz akcesorium</string>
 </resources>

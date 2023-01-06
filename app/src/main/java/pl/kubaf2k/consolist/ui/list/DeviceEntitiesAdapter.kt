@@ -26,11 +26,11 @@ class DeviceEntitiesAdapter(activityCaller: ActivityResultCaller): RecyclerView.
     private val editDeviceContract = activityCaller.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
 
-        val index = result.data?.getIntExtra("index", -1) ?: -1
+        val index = result.data?.getIntExtra("pl.kubaf2k.consolist.index", -1) ?: -1
 
         if (index == -1) return@registerForActivityResult
 
-        result.data?.getParcelableExtra<DeviceEntity>("resultDevice")?.let {
+        result.data?.getParcelableExtra<DeviceEntity>("pl.kubaf2k.consolist.resultDevice")?.let {
             MainActivity.deviceEntities[index] = it
             notifyItemChanged(index)
         }
@@ -65,8 +65,8 @@ class DeviceEntitiesAdapter(activityCaller: ActivityResultCaller): RecyclerView.
 
         description.text = "Stan: ${deviceEntity.condition}"
 
-        if (deviceEntity.images.isNotEmpty()) {
-            image.setImageBitmap(deviceEntity.images[0])
+        if (deviceEntity.imageHashes.isNotEmpty()) {
+            image.setImageBitmap(MainActivity.cachedLocalImages[deviceEntity.imageHashes[0]])
         } else {
             parent.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
                 getBitmapFromURL(deviceEntity.model.imgURL)?.let {
@@ -89,7 +89,7 @@ class DeviceEntitiesAdapter(activityCaller: ActivityResultCaller): RecyclerView.
 
         editBT.setOnClickListener {
             val editIntent = Intent(parent.context, ListEntryActivity::class.java)
-                .putExtra("index", holder.adapterPosition)
+                .putExtra("pl.kubaf2k.consolist.index", holder.adapterPosition)
             editDeviceContract.launch(editIntent)
         }
         deleteBT.setOnClickListener {

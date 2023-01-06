@@ -1,6 +1,5 @@
 package pl.kubaf2k.consolist.dataclasses
 
-import android.graphics.Bitmap
 import android.location.Location
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -12,7 +11,7 @@ data class DeviceEntity(
     val modelNumber: String,
     val condition: String,
     val location: Location? = null,
-    val images: List<Bitmap> = emptyList(),
+    val imageHashes: List<Int> = emptyList(),
     val accessories: List<AccessoryEntity> = emptyList()
 ): Parcelable {
     constructor(
@@ -21,32 +20,32 @@ data class DeviceEntity(
         modelNumberIndex: Int,
         condition: String,
         location: Location? = null,
-        images: List<Bitmap> = emptyList(),
+        imageHashes: List<Int> = emptyList(),
         accessories: List<AccessoryEntity> = emptyList()
-    ) : this(device, model, model.modelNumbers[modelNumberIndex], condition, location, images, accessories)
+    ) : this(device, model, model.modelNumbers[modelNumberIndex], condition, location, imageHashes, accessories)
     constructor(
         device: Device,
         modelIndex: Int,
         modelNumber: String,
         condition: String,
         location: Location? = null,
-        images: List<Bitmap> = emptyList(),
+        imageHashes: List<Int> = emptyList(),
         accessories: List<AccessoryEntity> = emptyList()
-    ) : this(device, device.models[modelIndex], modelNumber, condition, location, images, accessories)
+    ) : this(device, device.models[modelIndex], modelNumber, condition, location, imageHashes, accessories)
     constructor(
         device: Device,
         modelIndex: Int,
         modelNumberIndex: Int,
         condition: String,
         location: Location? = null,
-        images: List<Bitmap> = emptyList(),
+        imageHashes: List<Int> = emptyList(),
         accessories: List<AccessoryEntity> = emptyList()
-    ) : this(device, device.models[modelIndex], device.models[modelIndex].modelNumbers[modelNumberIndex], condition, location, images, accessories)
+    ) : this(device, device.models[modelIndex], device.models[modelIndex].modelNumbers[modelNumberIndex], condition, location, imageHashes, accessories)
 }
 
 @Parcelize
 data class AccessoryEntity(
     val device: Accessory,
     val condition: String,
-    val images: List<Bitmap>
+    val imageHashes: List<Int>
 ): Parcelable
