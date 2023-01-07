@@ -30,7 +30,17 @@ class DeviceEntitiesAdapter(activityCaller: ActivityResultCaller): RecyclerView.
 
         if (index == -1) return@registerForActivityResult
 
-        result.data?.getParcelableExtra<DeviceEntity>("pl.kubaf2k.consolist.resultDevice")?.let {
+        @Suppress("DEPRECATION")
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU)
+            result.data?.getParcelableExtra<DeviceEntity>("pl.kubaf2k.consolist.resultDevice")
+                ?.let {
+                    MainActivity.deviceEntities[index] = it
+                    notifyItemChanged(index)
+                }
+        else result.data?.getParcelableExtra(
+            "pl.kubaf2k.consolist.resultDevice",
+            DeviceEntity::class.java
+        )?.let {
             MainActivity.deviceEntities[index] = it
             notifyItemChanged(index)
         }
@@ -59,11 +69,13 @@ class DeviceEntitiesAdapter(activityCaller: ActivityResultCaller): RecyclerView.
 
         val deviceEntity = MainActivity.deviceEntities[holder.adapterPosition]
 
-        name.text = "${deviceEntity.device.manufacturer} ${deviceEntity.device.name} (${deviceEntity.device.releaseYear})"
-        if (name.text.length > 30)
-            name.text = "${name.text.slice(0..30)}..."
+        var nameText = "${deviceEntity.device.manufacturer} ${deviceEntity.device.name} (${deviceEntity.device.releaseYear})"
+        if (nameText.length > 30)
+            nameText = "${nameText.slice(0..30)}..."
+        name.text = nameText
 
-        description.text = "Stan: ${deviceEntity.condition}"
+        val descText = "${parent.resources.getString(R.string.condition)}: ${deviceEntity.condition}"
+        description.text = descText
 
         if (deviceEntity.imageHashes.isNotEmpty()) {
             image.setImageBitmap(MainActivity.cachedLocalImages[deviceEntity.imageHashes[0]])

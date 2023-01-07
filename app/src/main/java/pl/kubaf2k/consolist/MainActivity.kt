@@ -3,6 +3,8 @@ package pl.kubaf2k.consolist
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -85,7 +87,6 @@ class MainActivity : AppCompatActivity() {
             0,
             0,
             "Good",
-            null,
             emptyList(),
             mutableListOf(
                 AccessoryEntity(devices[0].accessories[0], "Good", emptyList())
@@ -96,6 +97,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityMainBinding
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.list_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.save_list -> {
+                //TODO zapis
+                true
+            }
+            R.id.load_list -> {
+                //TODO odczyt
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

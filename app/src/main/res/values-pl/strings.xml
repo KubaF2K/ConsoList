@@ -24,4 +24,6 @@
     <string name="add_accessories">Dodawanie akcesoriów</string>
     <string name="add_accessories_msg">Aby dodać akcesorium musisz najpierw zapisać to urządzenie. Czy chcesz je zapisać?</string>
     <string name="select_accessory">Wybierz akcesorium</string>
+    <string name="save_list">Zapisz listę</string>
+    <string name="load_list">Wczytaj listę</string>
 </resources>

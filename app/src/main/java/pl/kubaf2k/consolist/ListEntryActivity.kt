@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -55,7 +56,8 @@ class ListEntryActivity : AppCompatActivity() {
         binding.nextImgBtn.isEnabled = imgPos <= images.size-1
         binding.delImgBtn.isEnabled = images.isNotEmpty()
         binding.setImgBtn.isEnabled = images.size > 1 && imgPos > 0
-        binding.photosTextView.text = getString(R.string.photos) + if (images.isNotEmpty()) " (${imgPos+1}/${images.size})" else ""
+        val photosText = getString(R.string.photos) + if (images.isNotEmpty()) " (${imgPos+1}/${images.size})" else ""
+        binding.photosTextView.text = photosText
     }
 
     private val imagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri -> uri?.let {
@@ -87,20 +89,38 @@ class ListEntryActivity : AppCompatActivity() {
 
         val index = result.data?.getIntExtra("pl.kubaf2k.consolist.index", -1) ?: -1
 
-        if (index != -1) {
-            result.data?.getParcelableExtra<AccessoryEntity>("pl.kubaf2k.consolist.resultDevice")?.let { accessories[index] = it }
-            binding.accessoryRecyclerView.adapter?.notifyItemChanged(index)
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+            @Suppress("DEPRECATION")
+            if (index != -1) {
+                result.data?.getParcelableExtra<AccessoryEntity>(
+                    "pl.kubaf2k.consolist.resultDevice"
+                )
+                    ?.let { accessories[index] = it }
+                binding.accessoryRecyclerView.adapter?.notifyItemChanged(index)
+            } else {
+                result.data?.getParcelableExtra<AccessoryEntity>(
+                    "pl.kubaf2k.consolist.resultDevice"
+                )
+                    ?.let { accessories.add(it) }
+                binding.accessoryRecyclerView.adapter?.notifyItemInserted(accessories.size - 1)
+            }
+        } else {
+            if (index != -1) {
+                result.data?.getParcelableExtra(
+                    "pl.kubaf2k.consolist.resultDevice",
+                    AccessoryEntity::class.java
+                )
+                    ?.let { accessories[index] = it }
+                binding.accessoryRecyclerView.adapter?.notifyItemChanged(index)
+            } else {
+                result.data?.getParcelableExtra(
+                    "pl.kubaf2k.consolist.resultDevice",
+                    AccessoryEntity::class.java
+                )
+                    ?.let { accessories.add(it) }
+                binding.accessoryRecyclerView.adapter?.notifyItemInserted(accessories.size - 1)
+            }
         }
-        else {
-            result.data?.getParcelableExtra<AccessoryEntity>("pl.kubaf2k.consolist.resultDevice")?.let { accessories.add(it) }
-            binding.accessoryRecyclerView.adapter?.notifyItemInserted(accessories.size - 1)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        binding.accessoryRecyclerView.adapter?.notifyDataSetChanged()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,18 +131,20 @@ class ListEntryActivity : AppCompatActivity() {
 
         intent.extras?.let { bundle ->
             //the id of the accessory's parent device in the deviceEntities list, required for accessories
-            bundle.get("pl.kubaf2k.consolist.parent")?.let {
+            val parentIndex = bundle.getInt("pl.kubaf2k.consolist.parent", -1)
+            if (parentIndex != -1) {
                 isAccessory = true
-                parent = MainActivity.deviceEntities[it as Int]
+                parent = MainActivity.deviceEntities[parentIndex]
             }
             //index of the device in the devices list, or in the case of accessories in the parent's device's accessories list
-            bundle.get("pl.kubaf2k.consolist.device")?.let {
-                if (isAccessory) accessory = parent.device.accessories[it as Int]
-                else device = MainActivity.devices[it as Int]
+            val deviceIndex = bundle.getInt("pl.kubaf2k.consolist.device", -1)
+            if (deviceIndex != -1) {
+                if (isAccessory) accessory = parent.device.accessories[deviceIndex]
+                else device = MainActivity.devices[deviceIndex]
             }
             //index of old entity in the deviceEntities list, or in the case of accessories of the old entity in the accessories list of the parent
-            bundle.get("pl.kubaf2k.consolist.index")?.let {
-                index = it as Int
+            index = bundle.getInt("pl.kubaf2k.consolist.index", -1)
+            if (index != -1) {
                 if (isAccessory) {
                     oldAccessoryEntity = parent.accessories[index]
                 }
@@ -294,7 +316,9 @@ class ListEntryActivity : AppCompatActivity() {
             while (imgPos >= images.size) imgPos--
 
             if (imgPos < 0) {
-                binding.devicePhotoView.setImageDrawable(getDrawable(android.R.drawable.ic_menu_gallery))
+                binding.devicePhotoView.setImageDrawable(
+                    AppCompatResources.getDrawable(this, android.R.drawable.ic_menu_gallery)
+                )
                 imgPos = 0
             }
             else binding.devicePhotoView.setImageBitmap(MainActivity.cachedLocalImages[images[imgPos]])
