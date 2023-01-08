@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -13,9 +14,12 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.simpleframework.xml.core.Persister
 import pl.kubaf2k.consolist.MainActivity.Companion.cachedWebImages
 import pl.kubaf2k.consolist.databinding.ActivityMainBinding
 import pl.kubaf2k.consolist.dataclasses.*
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -98,6 +102,30 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+    private val saveRequest = registerForActivityResult(ActivityResultContracts.CreateDocument("text/xml")) {
+        it?.let { uri ->
+            contentResolver.openFileDescriptor(uri, "w")?.use { file ->
+                val stream = FileOutputStream(file.fileDescriptor)
+                val serializer = Persister()
+                for (device in deviceEntities)
+                    serializer.write(device, stream)
+            }
+        }
+    }
+
+    //TODO fix dataclasses for deserialization
+    private val loadRequest = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+        it?.let { uri ->
+            contentResolver.openFileDescriptor(uri, "r")?.use { file ->
+                val stream = FileInputStream(file.fileDescriptor)
+                val serializer = Persister()
+
+                deviceEntities.clear()
+                deviceEntities.add(serializer.read(DeviceEntity::class.java, stream))
+            }
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.list_menu, menu)
         return super.onCreateOptionsMenu(menu)
@@ -106,11 +134,11 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.save_list -> {
-                //TODO zapis
+                saveRequest.launch("list.xml")
                 true
             }
             R.id.load_list -> {
-                //TODO odczyt
+                loadRequest.launch(arrayOf("text/xml"))
                 true
             }
             else -> super.onOptionsItemSelected(item)
