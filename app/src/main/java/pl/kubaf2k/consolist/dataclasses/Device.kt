@@ -5,36 +5,16 @@ import kotlinx.parcelize.Parcelize
 import java.net.URL
 
 @Parcelize
-class Model(
+data class Model(
     var name: String,
     var imgURL: URL,
-    var modelNumbers: MutableList<String>
+    var modelNumbers: MutableList<String> = mutableListOf()
 ): Parcelable {
-    constructor() : this("", URL("http://example.org"), mutableListOf())
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Model
-
-        if (name != other.name) return false
-        if (imgURL != other.imgURL) return false
-        if (modelNumbers != other.modelNumbers) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + imgURL.hashCode()
-        result = 31 * result + modelNumbers.hashCode()
-        return result
-    }
+    constructor(): this("", URL("http://example.org"))
 }
 
 @Parcelize
-class Accessory(
+data class Accessory(
     var name: String,
     var imgURL: URL,
     var modelNumber: String?,
@@ -47,70 +27,47 @@ class Accessory(
         CONTROLLER,
         OTHER
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Accessory
-
-        if (name != other.name) return false
-        if (imgURL != other.imgURL) return false
-        if (modelNumber != other.modelNumber) return false
-        if (type != other.type) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + imgURL.hashCode()
-        result = 31 * result + (modelNumber?.hashCode() ?: 0)
-        result = 31 * result + type.hashCode()
-        return result
-    }
-
 }
 
 @Parcelize
-class Device(
+data class Device(
     var name: String,
     var description: String,
     var imgURL: URL,
     var manufacturer: String,
     var releaseYear: Int,
-    var models: MutableList<Model>,
-    var accessories: MutableList<Accessory>
+    var models: MutableList<Model> = mutableListOf(),
+    var accessories: MutableList<Accessory> = mutableListOf()
 ): Parcelable {
-    constructor(): this("", "", URL("http://example.org"), "", -1, mutableListOf(), mutableListOf())
+    constructor(): this("", "", URL("http://example.org"), "", -1)
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+    constructor(entity: DBDeviceWithModelsAndAccessories): this(
+        entity.device,
+        entity.models.map { Model(
+            it.name,
+            it.imgURL,
+            it.modelNumbers.toMutableList()
+        ) }.toMutableList(),
+        entity.accessories.map { Accessory(
+            it.name,
+            it.imgURL,
+            it.modelNumber,
+            it.type
+        ) }.toMutableList()
+    )
 
-        other as Device
-
-        if (name != other.name) return false
-        if (description != other.description) return false
-        if (imgURL != other.imgURL) return false
-        if (manufacturer != other.manufacturer) return false
-        if (releaseYear != other.releaseYear) return false
-        if (models != other.models) return false
-        if (accessories != other.accessories) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + description.hashCode()
-        result = 31 * result + imgURL.hashCode()
-        result = 31 * result + manufacturer.hashCode()
-        result = 31 * result + releaseYear
-        result = 31 * result + models.hashCode()
-        result = 31 * result + accessories.hashCode()
-        return result
-    }
-
-
+    constructor(
+        entity: DBDevice,
+        models: MutableList<Model> = mutableListOf(),
+        accessories: MutableList<Accessory> = mutableListOf()
+    ): this(
+        entity.name,
+        entity.description,
+        entity.imgURL,
+        entity.manufacturer,
+        entity.releaseYear,
+        models,
+        accessories
+    )
 }
+//TODO db setup

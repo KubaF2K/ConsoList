@@ -14,7 +14,7 @@ class WrapperList(
 }
 
 @Parcelize
-class DeviceEntity(
+data class DeviceEntity(
     var device: Device,
     var model: Model,
     var modelNumber: String,
@@ -51,59 +51,13 @@ class DeviceEntity(
         imageHashes: MutableList<Int> = mutableListOf(),
         accessories: MutableList<AccessoryEntity> = mutableListOf()
     ) : this(device, device.models[modelIndex], device.models[modelIndex].modelNumbers[modelNumberIndex], condition,/* location,*/ imageHashes, accessories)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as DeviceEntity
-
-        if (device != other.device) return false
-        if (model != other.model) return false
-        if (modelNumber != other.modelNumber) return false
-        if (condition != other.condition) return false
-        if (imageHashes != other.imageHashes) return false
-        if (accessories != other.accessories) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = device.hashCode()
-        result = 31 * result + model.hashCode()
-        result = 31 * result + modelNumber.hashCode()
-        result = 31 * result + condition.hashCode()
-        result = 31 * result + imageHashes.hashCode()
-        result = 31 * result + accessories.hashCode()
-        return result
-    }
 }
 
 @Parcelize
-class AccessoryEntity(
+data class AccessoryEntity(
     var device: Accessory,
     var condition: String,
-    var imageHashes: MutableList<Int>
+    var imageHashes: MutableList<Int> = mutableListOf()
 ): Parcelable {
-    constructor(): this(Accessory(), "", mutableListOf())
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as AccessoryEntity
-
-        if (device != other.device) return false
-        if (condition != other.condition) return false
-        if (imageHashes != other.imageHashes) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = device.hashCode()
-        result = 31 * result + condition.hashCode()
-        result = 31 * result + imageHashes.hashCode()
-        return result
-    }
+    constructor(): this(Accessory(), "")
 }

@@ -114,7 +114,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    //TODO fix dataclasses for deserialization
     private val loadRequest = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
         it?.let { uri ->
             contentResolver.openFileDescriptor(uri, "r")?.use { file ->
