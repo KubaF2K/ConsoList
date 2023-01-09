@@ -18,6 +18,7 @@ import org.simpleframework.xml.core.Persister
 import pl.kubaf2k.consolist.MainActivity.Companion.cachedWebImages
 import pl.kubaf2k.consolist.databinding.ActivityMainBinding
 import pl.kubaf2k.consolist.dataclasses.*
+import pl.kubaf2k.consolist.ui.list.ListFragment
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
@@ -54,30 +55,30 @@ suspend fun getBitmapFromURL(url: URL): Bitmap? {
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        val devices = listOf(Device(
+        val devices = mutableListOf(Device(
             "Playstation 2",
             "Sony Ps2 jest to kozacka konsola lorem ipsum dolor sit ametSony Ps2 jest to kozacka konsola lorem ipsum dolor sit ametSony Ps2 jest to kozacka konsola lorem ipsum dolor sit ametSony Ps2 jest to kozacka konsola lorem ipsum dolor sit amet",
             URL("https://upload.wikimedia.org/wikipedia/commons/0/02/PS2-Fat-Console-Set.jpg"),
             "Sony",
             2000,
-            listOf(
+            mutableListOf(
                 Model(
                     "Fat",
                     URL("https://upload.wikimedia.org/wikipedia/commons/0/02/PS2-Fat-Console-Set.jpg"),
-                    listOf("SCPH-30000")
+                    mutableListOf("SCPH-30000")
                 ),
                 Model(
                     "Slim (70k)",
                     URL("https://lowendmac.com/wp-content/uploads/ps2-slim.jpg"),
-                    listOf("SCPH-70000")
+                    mutableListOf("SCPH-70000")
                 ),
                 Model(
                     "Slim (90k)",
                     URL("https://www.justpushstart.com/wp-content/uploads/2013/01/ps2-console.jpg"),
-                    listOf("SCPH-90000")
+                    mutableListOf("SCPH-90000")
                 )
             ),
-            listOf(
+            mutableListOf(
                 Accessory(
                     "DualShock 2",
                     URL("https://rukminim1.flixcart.com/image/1664/1664/gamepad/wired/n/f/y/sony-playstation-2-dualshock-2-analog-controller-original-imaef2732hhfxhav.jpeg"),
@@ -86,14 +87,14 @@ class MainActivity : AppCompatActivity() {
                 )
             )
         ))
-        val deviceEntities = mutableListOf(DeviceEntity(
+        var deviceEntities = mutableListOf(DeviceEntity(
             devices[0],
             0,
             0,
             "Good",
-            emptyList(),
+            mutableListOf(),
             mutableListOf(
-                AccessoryEntity(devices[0].accessories[0], "Good", emptyList())
+                AccessoryEntity(devices[0].accessories[0], "Good", mutableListOf())
             )
         ))
         val cachedWebImages: MutableMap<URL, Bitmap> = HashMap()
@@ -107,8 +108,8 @@ class MainActivity : AppCompatActivity() {
             contentResolver.openFileDescriptor(uri, "w")?.use { file ->
                 val stream = FileOutputStream(file.fileDescriptor)
                 val serializer = Persister()
-                for (device in deviceEntities)
-                    serializer.write(device, stream)
+
+                serializer.write(WrapperList(deviceEntities), stream)
             }
         }
     }
@@ -120,8 +121,8 @@ class MainActivity : AppCompatActivity() {
                 val stream = FileInputStream(file.fileDescriptor)
                 val serializer = Persister()
 
-                deviceEntities.clear()
-                deviceEntities.add(serializer.read(DeviceEntity::class.java, stream))
+                deviceEntities = serializer.read(WrapperList::class.java, stream).list
+                ListFragment.deviceRecyclerView.adapter?.notifyDataSetChanged()
             }
         }
     }

@@ -25,7 +25,15 @@ class DevicesAdapter(activityCaller: ActivityResultCaller): RecyclerView.Adapter
 
     private val addDeviceEntityContract = activityCaller.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
-        result.data?.getParcelableExtra<DeviceEntity>("pl.kubaf2k.consolist.resultDevice")?.let { MainActivity.deviceEntities.add(it) }
+        @Suppress("DEPRECATION")
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU)
+            result.data?.getParcelableExtra<DeviceEntity>(
+                "pl.kubaf2k.consolist.resultDevice"
+            )?.let { MainActivity.deviceEntities.add(it) }
+        else result.data?.getParcelableExtra(
+            "pl.kubaf2k.consolist.resultDevice",
+            DeviceEntity::class.java
+        )?.let { MainActivity.deviceEntities.add(it) }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DevicesViewHolder {
