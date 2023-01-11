@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "196637076458",
+    "project_id": "consolist-a159b",
+    "storage_bucket": "consolist-a159b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196637076458:android:901d41d3b8b583d4ec2093",
+        "android_client_info": {
+          "package_name": "pl.kubaf2k.consolist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "196637076458-mqgh7ggcfqr4mj9r76ijq0cl7ouji4pr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASJW5cdY_9bsD69LyRostKefKfnMt-Xtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196637076458-mqgh7ggcfqr4mj9r76ijq0cl7ouji4pr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

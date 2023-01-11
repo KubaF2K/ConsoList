@@ -12,6 +12,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.simpleframework.xml.core.Persister
@@ -55,50 +57,12 @@ suspend fun getBitmapFromURL(url: URL): Bitmap? {
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        val devices = mutableListOf(Device(
-            "Playstation 2",
-            "Sony Ps2 jest to kozacka konsola lorem ipsum dolor sit ametSony Ps2 jest to kozacka konsola lorem ipsum dolor sit ametSony Ps2 jest to kozacka konsola lorem ipsum dolor sit ametSony Ps2 jest to kozacka konsola lorem ipsum dolor sit amet",
-            URL("https://upload.wikimedia.org/wikipedia/commons/0/02/PS2-Fat-Console-Set.jpg"),
-            "Sony",
-            2000,
-            mutableListOf(
-                Model(
-                    "Fat",
-                    URL("https://upload.wikimedia.org/wikipedia/commons/0/02/PS2-Fat-Console-Set.jpg"),
-                    mutableListOf("SCPH-30000")
-                ),
-                Model(
-                    "Slim (70k)",
-                    URL("https://lowendmac.com/wp-content/uploads/ps2-slim.jpg"),
-                    mutableListOf("SCPH-70000")
-                ),
-                Model(
-                    "Slim (90k)",
-                    URL("https://www.justpushstart.com/wp-content/uploads/2013/01/ps2-console.jpg"),
-                    mutableListOf("SCPH-90000")
-                )
-            ),
-            mutableListOf(
-                Accessory(
-                    "DualShock 2",
-                    URL("https://rukminim1.flixcart.com/image/1664/1664/gamepad/wired/n/f/y/sony-playstation-2-dualshock-2-analog-controller-original-imaef2732hhfxhav.jpeg"),
-                    "SCPH-10010",
-                    Accessory.AccessoryType.CONTROLLER
-                )
-            )
-        ))
-        var deviceEntities = mutableListOf(DeviceEntity(
-            devices[0],
-            0,
-            0,
-            "Good",
-            mutableListOf(),
-            mutableListOf(
-                AccessoryEntity(devices[0].accessories[0], "Good", mutableListOf())
-            )
-        ))
+        val devices: MutableList<Device> = ArrayList()
+        var deviceEntities: MutableList<DeviceEntity> = ArrayList()
         val cachedWebImages: MutableMap<URL, Bitmap> = HashMap()
         val cachedLocalImages: HashMap<Int, Bitmap> = HashMap()
+//        lateinit var database: DeviceDatabase
+//        lateinit var dbDao: DeviceDao
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -150,6 +114,44 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+//        database = Room.databaseBuilder(this, DeviceDatabase::class.java, "device_db").build()
+//        dbDao = database.deviceDao()
+//        dbDao.insertDevicesWithChildren(*devices.toTypedArray())
+        val db = Firebase.firestore
+
+        db.collection("devices")
+            .get()
+            .addOnSuccessListener {result ->
+                for (document in result) {
+                    val accessories = ArrayList<Accessory>()
+                    for (accessory in document.data["accessories"] as List<Map<String, Any>>) {
+                        accessories.add(Accessory(
+                            accessory["name"] as String,
+                            URL(accessory["imgURL"] as String),
+                            accessory["modelNumber"] as String,
+                            Accessory.AccessoryType.valueOf(accessory["type"] as String)
+                        ))
+                    }
+                    val models = ArrayList<Model>()
+                    for (model in document.data["models"] as List<Map<String, Any>>) {
+                        models.add(Model(
+                            model["name"] as String,
+                            URL(model["imgURL"] as String),
+                            (model["modelNumbers"] as List<String>).toMutableList()
+                        ))
+                    }
+                    devices.add(Device(
+                        document.data["name"] as String,
+                        document.data["description"] as String,
+                        URL(document.data["imgURL"] as String),
+                        document.data["manufacturer"] as String,
+                        (document.data["releaseYear"] as Long).toInt(),
+                        models,
+                        accessories
+                    ))
+                }
+            }
 
         val navView: BottomNavigationView = binding.navView
 

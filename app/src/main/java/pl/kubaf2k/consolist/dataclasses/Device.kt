@@ -40,34 +40,5 @@ data class Device(
     var accessories: MutableList<Accessory> = mutableListOf()
 ): Parcelable {
     constructor(): this("", "", URL("http://example.org"), "", -1)
-
-    constructor(entity: DBDeviceWithModelsAndAccessories): this(
-        entity.device,
-        entity.models.map { Model(
-            it.name,
-            it.imgURL,
-            it.modelNumbers.toMutableList()
-        ) }.toMutableList(),
-        entity.accessories.map { Accessory(
-            it.name,
-            it.imgURL,
-            it.modelNumber,
-            it.type
-        ) }.toMutableList()
-    )
-
-    constructor(
-        entity: DBDevice,
-        models: MutableList<Model> = mutableListOf(),
-        accessories: MutableList<Accessory> = mutableListOf()
-    ): this(
-        entity.name,
-        entity.description,
-        entity.imgURL,
-        entity.manufacturer,
-        entity.releaseYear,
-        models,
-        accessories
-    )
+    //TODO constructor from firebase document
 }
-//TODO db setup
