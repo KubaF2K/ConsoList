@@ -1,6 +1,7 @@
 package pl.kubaf2k.consolist.dataclasses
 
 import android.os.Parcelable
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import kotlinx.parcelize.Parcelize
 import java.net.URL
 
@@ -40,5 +41,31 @@ data class Device(
     var accessories: MutableList<Accessory> = mutableListOf()
 ): Parcelable {
     constructor(): this("", "", URL("http://example.org"), "", -1)
-    //TODO constructor from firebase document
+
+    @Suppress("UNCHECKED_CAST")
+    constructor(document: QueryDocumentSnapshot): this(
+        document.data["name"] as String,
+        document.data["description"] as String,
+        URL(document.data["imgURL"] as String),
+        document.data["manufacturer"] as String,
+        (document.data["releaseYear"] as Long).toInt(),
+        mutableListOf(),
+        mutableListOf()
+    ) {
+        for (model in document.data["models"] as List<Map<String, Any>>) {
+            models.add(Model(
+                model["name"] as String,
+                URL(model["imgURL"] as String),
+                (model["modelNumbers"] as List<String>).toMutableList()
+            ))
+        }
+        for (accessory in document.data["accessories"] as List<Map<String, Any>>) {
+            accessories.add(Accessory(
+                accessory["name"] as String,
+                URL(accessory["imgURL"] as String),
+                accessory["modelNumber"] as String,
+                Accessory.AccessoryType.valueOf(accessory["type"] as String)
+            ))
+        }
+    }
 }

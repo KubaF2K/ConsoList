@@ -1,7 +1,10 @@
 package pl.kubaf2k.consolist
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -19,12 +22,19 @@ import kotlinx.coroutines.withContext
 import org.simpleframework.xml.core.Persister
 import pl.kubaf2k.consolist.MainActivity.Companion.cachedWebImages
 import pl.kubaf2k.consolist.databinding.ActivityMainBinding
-import pl.kubaf2k.consolist.dataclasses.*
+import pl.kubaf2k.consolist.dataclasses.Device
+import pl.kubaf2k.consolist.dataclasses.DeviceEntity
+import pl.kubaf2k.consolist.dataclasses.WrapperList
 import pl.kubaf2k.consolist.ui.list.ListFragment
+import java.io.ByteArrayInputStream
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.nio.ByteBuffer
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 suspend fun getBitmapFromURL(url: URL): Bitmap? {
     if (cachedWebImages.containsKey(url))
@@ -54,6 +64,8 @@ suspend fun getBitmapFromURL(url: URL): Bitmap? {
     return bitmap
 }
 
+//TODO autosave list on close
+//TODO local copy of firestore
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -61,31 +73,85 @@ class MainActivity : AppCompatActivity() {
         var deviceEntities: MutableList<DeviceEntity> = ArrayList()
         val cachedWebImages: MutableMap<URL, Bitmap> = HashMap()
         val cachedLocalImages: HashMap<Int, Bitmap> = HashMap()
-//        lateinit var database: DeviceDatabase
-//        lateinit var dbDao: DeviceDao
     }
 
     private lateinit var binding: ActivityMainBinding
 
-    private val saveRequest = registerForActivityResult(ActivityResultContracts.CreateDocument("text/xml")) {
+    //TODO launch this async because jeez images are big
+    private val saveRequest = registerForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) {
         it?.let { uri ->
-            contentResolver.openFileDescriptor(uri, "w")?.use { file ->
-                val stream = FileOutputStream(file.fileDescriptor)
+            contentResolver.openAssetFileDescriptor(uri, "w")?.use { file ->
+                val stream = ZipOutputStream(FileOutputStream(file.fileDescriptor))
+
                 val serializer = Persister()
 
+                stream.putNextEntry(ZipEntry("list.xml"))
                 serializer.write(WrapperList(deviceEntities), stream)
+
+                @Suppress("DEPRECATION")
+                for (device in deviceEntities) {
+                    for (accessory in device.accessories)
+                        for (hash in accessory.imageHashes) {
+                            cachedLocalImages[hash]?.let { bmp ->
+                                stream.putNextEntry(ZipEntry("$hash.webp"))
+                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+                                    bmp.compress(Bitmap.CompressFormat.WEBP, 99, stream)
+                                else
+                                    bmp.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, stream)
+
+                            }
+                        }
+                    for (hash in device.imageHashes) {
+                        cachedLocalImages[hash]?.let { bmp ->
+                            stream.putNextEntry(ZipEntry("$hash.webp"))
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+                                bmp.compress(Bitmap.CompressFormat.WEBP, 99, stream)
+                            else
+                                bmp.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, stream)
+                        }
+                    }
+                }
+
+                stream.close()
             }
+//            contentResolver.openAssetFileDescriptor(uri, "w")?.use { file ->
+//                val stream = FileOutputStream(file.fileDescriptor)
+//                val serializer = Persister()
+//
+//                serializer.write(WrapperList(deviceEntities), stream)
+//            }
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private val loadRequest = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
         it?.let { uri ->
             contentResolver.openFileDescriptor(uri, "r")?.use { file ->
-                val stream = FileInputStream(file.fileDescriptor)
+                val stream = ZipInputStream(FileInputStream(file.fileDescriptor))
                 val serializer = Persister()
 
-                deviceEntities = serializer.read(WrapperList::class.java, stream).list
-                ListFragment.deviceRecyclerView.adapter?.notifyDataSetChanged()
+                var ze = stream.nextEntry
+                while (ze != null) {
+                    if (ze.name == "list.xml") {
+                        deviceEntities = serializer.read(
+                            WrapperList::class.java,
+                            ByteArrayInputStream(stream.readBytes())
+                        ).list
+                        ListFragment.deviceRecyclerView.adapter?.notifyDataSetChanged()
+                        stream.closeEntry()
+                    }
+                    else {
+                        val bmp = ImageDecoder.decodeBitmap(
+                            ImageDecoder.createSource(
+                                ByteBuffer.wrap(stream.readBytes())
+                            )
+                        )
+                        cachedLocalImages[ze.name.substringBefore('.').toInt()] = bmp
+                        stream.closeEntry()
+                    }
+                    ze = stream.nextEntry
+                }
+                stream.close()
             }
         }
     }
@@ -98,11 +164,11 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.save_list -> {
-                saveRequest.launch("list.xml")
+                saveRequest.launch("list.clst")
                 true
             }
             R.id.load_list -> {
-                loadRequest.launch(arrayOf("text/xml"))
+                loadRequest.launch(arrayOf("application/octet-stream"))
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -124,32 +190,7 @@ class MainActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener {result ->
                 for (document in result) {
-                    val accessories = ArrayList<Accessory>()
-                    for (accessory in document.data["accessories"] as List<Map<String, Any>>) {
-                        accessories.add(Accessory(
-                            accessory["name"] as String,
-                            URL(accessory["imgURL"] as String),
-                            accessory["modelNumber"] as String,
-                            Accessory.AccessoryType.valueOf(accessory["type"] as String)
-                        ))
-                    }
-                    val models = ArrayList<Model>()
-                    for (model in document.data["models"] as List<Map<String, Any>>) {
-                        models.add(Model(
-                            model["name"] as String,
-                            URL(model["imgURL"] as String),
-                            (model["modelNumbers"] as List<String>).toMutableList()
-                        ))
-                    }
-                    devices.add(Device(
-                        document.data["name"] as String,
-                        document.data["description"] as String,
-                        URL(document.data["imgURL"] as String),
-                        document.data["manufacturer"] as String,
-                        (document.data["releaseYear"] as Long).toInt(),
-                        models,
-                        accessories
-                    ))
+                    devices.add(Device(document))
                 }
             }
 

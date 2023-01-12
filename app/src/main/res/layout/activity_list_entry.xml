@@ -74,7 +74,6 @@
             android:inputType="text"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
-        <!--        TODO location-->
         <TextView
             android:id="@+id/photosTextView"
             android:layout_width="wrap_content"

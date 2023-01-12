@@ -163,7 +163,6 @@ class ListEntryActivity : AppCompatActivity() {
         }
 
         if (isAccessory) {
-//            TODO visibility.gone the location
             binding.accessoriesTextView.visibility = View.GONE
             binding.addAccessoryBtn.visibility = View.GONE
             binding.accessoryRecyclerView.visibility = View.GONE
