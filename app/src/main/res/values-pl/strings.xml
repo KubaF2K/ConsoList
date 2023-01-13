@@ -26,4 +26,5 @@
     <string name="select_accessory">Wybierz akcesorium</string>
     <string name="save_list">Zapisz listę</string>
     <string name="load_list">Wczytaj listę</string>
+    <string name="saved">Zapisano listę!</string>
 </resources>

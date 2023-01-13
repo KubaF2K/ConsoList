@@ -26,4 +26,5 @@
     <string name="select_accessory">Select an accessory</string>
     <string name="save_list">Save list</string>
     <string name="load_list">Load list</string>
+    <string name="saved">Saved list!</string>
 </resources>

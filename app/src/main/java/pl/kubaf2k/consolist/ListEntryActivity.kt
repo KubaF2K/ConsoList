@@ -49,8 +49,6 @@ class ListEntryActivity : AppCompatActivity() {
     private var imgJob: Job? = null
     private var tempUri: Uri? = null
 
-    private fun fFinish() { finish() }
-
     private fun updateButtons() {
         binding.prevImgBtn.isEnabled = imgPos > 0
         binding.nextImgBtn.isEnabled = imgPos <= images.size-1
@@ -76,6 +74,7 @@ class ListEntryActivity : AppCompatActivity() {
         tempUri?.let { uri ->
             val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri))
             val bitmapHash = bitmap.hashCode()
+            MainActivity.cachedLocalImages[bitmapHash] = bitmap
             images.add(bitmapHash)
             imgPos = images.size - 1
             binding.devicePhotoView.setImageBitmap(MainActivity.cachedLocalImages[images[imgPos]])
@@ -376,7 +375,7 @@ class ListEntryActivity : AppCompatActivity() {
                 .putExtra("pl.kubaf2k.consolist.index", index)
                 .putExtra("pl.kubaf2k.consolist.resultDevice", resultDevice)
             setResult(Activity.RESULT_OK, result)
-            fFinish()
+            finish()
             return@setOnClickListener
         }
 
