@@ -13,7 +13,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -22,11 +21,11 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.simpleframework.xml.core.Persister
+import pl.kubaf2k.consolist.MainActivity.Companion.cachedLocalImages
 import pl.kubaf2k.consolist.MainActivity.Companion.cachedWebImages
+import pl.kubaf2k.consolist.MainActivity.Companion.listCache
 import pl.kubaf2k.consolist.databinding.ActivityMainBinding
 import pl.kubaf2k.consolist.dataclasses.Device
 import pl.kubaf2k.consolist.dataclasses.DeviceEntity
@@ -36,6 +35,7 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.ByteBuffer
@@ -71,6 +71,74 @@ suspend fun getBitmapFromURL(url: URL): Bitmap? {
     return bitmap
 }
 
+@Suppress("DEPRECATION")
+suspend fun compressBitmapToStream(image: Bitmap, stream: OutputStream) {
+    withContext(Dispatchers.IO) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+            image.compress(Bitmap.CompressFormat.WEBP, 99, stream)
+        else
+            image.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, stream)
+    }
+}
+
+fun saveList(list: List<DeviceEntity>) {
+    val deviceEntitiesCopy = list.toMutableList()
+    val serializer = Persister()
+
+    val listFile = File(listCache, "list.xml")
+    if (listFile.exists()) listFile.delete()
+    listFile.createNewFile()
+
+    serializer.write(WrapperList(deviceEntitiesCopy), listFile)
+}
+
+suspend fun saveImage(image: Bitmap) {
+    if (listCache.list()?.contains("${image.hashCode()}.webp") == true) return
+
+    withContext(Dispatchers.IO) {
+        val file = File(listCache, "${image.hashCode()}.webp")
+        file.createNewFile()
+        compressBitmapToStream(image, FileOutputStream(file))
+    }
+}
+suspend fun saveImages(hashes: Collection<Int>) {
+    for (hash in hashes) cachedLocalImages[hash]?.let { saveImage(it) }
+}
+
+suspend fun saveDevicesToFolder(folder: File, deviceEntities: List<DeviceEntity>) {
+    val deviceEntitiesCopy = deviceEntities.toMutableList()
+    val serializer = Persister()
+
+    if (folder.exists()) folder.deleteRecursively()
+    folder.mkdir()
+
+    withContext(Dispatchers.IO) {
+        val listFile = File(folder, "list.xml")
+        listFile.createNewFile()
+        serializer.write(WrapperList(deviceEntitiesCopy), listFile)
+
+        @Suppress("DEPRECATION")
+        for (device in deviceEntitiesCopy) {
+            for (accessory in device.accessories) {
+                for (hash in accessory.imageHashes) {
+                    cachedLocalImages[hash]?.let { bmp ->
+                        val file = File(folder, "$hash.webp")
+                        file.createNewFile()
+                        compressBitmapToStream(bmp, FileOutputStream(file))
+                    }
+                }
+            }
+            for (hash in device.imageHashes) {
+                cachedLocalImages[hash]?.let { bmp ->
+                    val file = File(folder, "$hash.webp")
+                    file.createNewFile()
+                    compressBitmapToStream(bmp, FileOutputStream(file))
+                }
+            }
+        }
+    }
+}
+
 suspend fun saveDevicesToFile(
     contentResolver: ContentResolver,
     uri: Uri,
@@ -90,22 +158,15 @@ suspend fun saveDevicesToFile(
             for (device in deviceEntitiesCopy) {
                 for (accessory in device.accessories)
                     for (hash in accessory.imageHashes) {
-                        MainActivity.cachedLocalImages[hash]?.let { bmp ->
+                        cachedLocalImages[hash]?.let { bmp ->
                             stream.putNextEntry(ZipEntry("$hash.webp"))
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
-                                bmp.compress(Bitmap.CompressFormat.WEBP, 99, stream)
-                            else
-                                bmp.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, stream)
-
+                            compressBitmapToStream(bmp, stream)
                         }
                     }
                 for (hash in device.imageHashes) {
-                    MainActivity.cachedLocalImages[hash]?.let { bmp ->
+                    cachedLocalImages[hash]?.let { bmp ->
                         stream.putNextEntry(ZipEntry("$hash.webp"))
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
-                            bmp.compress(Bitmap.CompressFormat.WEBP, 99, stream)
-                        else
-                            bmp.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, stream)
+                        compressBitmapToStream(bmp, stream)
                     }
                 }
             }
@@ -113,6 +174,71 @@ suspend fun saveDevicesToFile(
             stream.close()
         }
     }
+}
+suspend fun loadDevicesFromFolder(folder: File, append: Boolean = false) {
+    if (!folder.isDirectory) throw IllegalArgumentException("Provided file is not a valid list folder.")
+
+    var tempDeviceEntities = mutableListOf<DeviceEntity>()
+    val tempCachedImages = mutableMapOf<Int, Bitmap>()
+
+    val loadedImages = mutableSetOf<File>()
+    val devicesWithMissingImages = mutableSetOf<DeviceEntity>()
+
+    val serializer = Persister()
+
+    withContext(Dispatchers.IO) {
+        folder.listFiles()?.let { files ->
+            val listFile = files.find { it.name == "list.xml" } ?: throw IllegalArgumentException("Provided list folder doesn't contain a valid list file")
+            tempDeviceEntities = serializer.read(
+                WrapperList::class.java,
+                FileInputStream(listFile)
+            ).list
+
+            for (device in tempDeviceEntities) {
+                for (accessory in device.accessories) {
+                    for (hash in accessory.imageHashes) {
+                        if (tempCachedImages.containsKey(hash)) continue
+
+                        val imageFile = files.find { it.name == "$hash.webp" }
+
+                        if (imageFile == null) devicesWithMissingImages.add(device)
+                        else {
+                            tempCachedImages[hash] = ImageDecoder.decodeBitmap(
+                                ImageDecoder.createSource(imageFile)
+                            )
+                            loadedImages.add(imageFile)
+                        }
+                    }
+                }
+                for (hash in device.imageHashes) {
+                    if (tempCachedImages.containsKey(hash)) continue
+
+                    val imageFile = files.find { it.name == "$hash.webp" }
+
+                    if (imageFile == null) devicesWithMissingImages.add(device)
+                    else {
+                        tempCachedImages[hash] = ImageDecoder.decodeBitmap(
+                            ImageDecoder.createSource(imageFile)
+                        )
+                        loadedImages.add(imageFile)
+                    }
+                }
+            }
+            for (file in files.filter { !loadedImages.contains(it) && it.name != "list.xml" }) file.delete()
+        }
+    }
+    if (!append) {
+        val size = MainActivity.deviceEntities.size
+        MainActivity.deviceEntities.clear()
+        ListFragment.deviceRecyclerView.adapter?.notifyItemRangeRemoved(0, size)
+    }
+    val startIndex = MainActivity.deviceEntities.size
+    MainActivity.deviceEntities.addAll(tempDeviceEntities)
+    cachedLocalImages.putAll(tempCachedImages)
+    ListFragment.deviceRecyclerView.adapter?.notifyItemRangeInserted(
+        startIndex,
+        tempDeviceEntities.size
+    )
 }
 suspend fun loadDevicesFromFile(contentResolver: ContentResolver, uri: Uri, append: Boolean = false) {
     contentResolver.openAssetFileDescriptor(uri, "r")?.use { file ->
@@ -137,7 +263,7 @@ suspend fun loadDevicesFromFile(contentResolver: ContentResolver, uri: Uri, appe
                             ByteBuffer.wrap(stream.readBytes())
                         )
                     )
-                    tempCachedImages[ze.name.substringBefore(".").toInt()] = bmp
+                    tempCachedImages[ze.name.substringBefore('.').toInt()] = bmp
                     stream.closeEntry()
                 }
                 ze = stream.nextEntry
@@ -152,7 +278,7 @@ suspend fun loadDevicesFromFile(contentResolver: ContentResolver, uri: Uri, appe
         }
         val startIndex = MainActivity.deviceEntities.size
         MainActivity.deviceEntities.addAll(tempDeviceEntities)
-        MainActivity.cachedLocalImages.putAll(tempCachedImages)
+        cachedLocalImages.putAll(tempCachedImages)
         ListFragment.deviceRecyclerView.adapter?.notifyItemRangeInserted(
             startIndex,
             tempDeviceEntities.size
@@ -160,11 +286,11 @@ suspend fun loadDevicesFromFile(contentResolver: ContentResolver, uri: Uri, appe
     }
 }
 
-//TODO autosave list on close
 //TODO local copy of firestore
 class MainActivity : AppCompatActivity() {
 
     companion object {
+        lateinit var mainActivity: MainActivity
         val devices: MutableList<Device> = ArrayList()
         var deviceEntities: MutableList<DeviceEntity> = ArrayList()
         val cachedWebImages: MutableMap<URL, Bitmap> = HashMap()
@@ -172,7 +298,7 @@ class MainActivity : AppCompatActivity() {
         lateinit var listCache: File
     }
 
-    private lateinit var binding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
 
     private val saveRequest = registerForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) {
         it?.let { uri ->
@@ -193,6 +319,7 @@ class MainActivity : AppCompatActivity() {
             binding.progressBar.isIndeterminate = true
             lifecycleScope.launch {
                 loadDevicesFromFile(contentResolver, uri, true)
+                saveDevicesToFolder(listCache, deviceEntities)
                 binding.progressBar.isIndeterminate = false
                 binding.progressBar.visibility = View.GONE
             }
@@ -224,9 +351,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        database = Room.databaseBuilder(this, DeviceDatabase::class.java, "device_db").build()
-//        dbDao = database.deviceDao()
-//        dbDao.insertDevicesWithChildren(*devices.toTypedArray())
+        mainActivity = this
         val db = Firebase.firestore
 
         db.collection("devices")
@@ -237,14 +362,15 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-        listCache = File(filesDir, "list.clst")
-
-        if (listCache.exists()) {
-            val uri = FileProvider.getUriForFile(applicationContext, "${BuildConfig.APPLICATION_ID}.provider", listCache)
-            binding.progressBar.visibility = View.VISIBLE
-            binding.progressBar.isIndeterminate = true
-            lifecycleScope.launch {
-                loadDevicesFromFile(contentResolver, uri, true)
+        listCache = File(filesDir, "listCache")
+        binding.progressBar.visibility = View.VISIBLE
+        binding.progressBar.isIndeterminate = true
+        lifecycleScope.launch {
+            try {
+                loadDevicesFromFolder(listCache)
+            } catch (e: IllegalArgumentException) {
+                println(e.message)
+            } finally {
                 binding.progressBar.isIndeterminate = false
                 binding.progressBar.visibility = View.GONE
             }
@@ -262,17 +388,5 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-    }
-
-    //TODO fix this, doesn't save images
-    override fun onStop() {
-//        if (listCache.exists()) {
-//            listCache.delete()
-//        }
-//        listCache.createNewFile()
-//        val uri = FileProvider.getUriForFile(applicationContext, "${BuildConfig.APPLICATION_ID}.provider", listCache)
-//        runBlocking { saveDevicesToFile(contentResolver, uri, deviceEntities, cachedLocalImages) }
-
-        super.onStop()
     }
 }

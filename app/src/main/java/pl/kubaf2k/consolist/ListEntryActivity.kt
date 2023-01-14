@@ -49,6 +49,8 @@ class ListEntryActivity : AppCompatActivity() {
     private var imgJob: Job? = null
     private var tempUri: Uri? = null
 
+    //TODO fix list removal on close
+
     private fun updateButtons() {
         binding.prevImgBtn.isEnabled = imgPos > 0
         binding.nextImgBtn.isEnabled = imgPos <= images.size-1
@@ -357,26 +359,28 @@ class ListEntryActivity : AppCompatActivity() {
                     binding.modelNumberSpinner.selectedItem.toString()
                 },
                 binding.conditionEditText.text.toString(),
-                imageHashes = images,
-                accessories = accessories
+                images,
+                accessories
             )
+            if (!isAccessory) {
+                MainActivity.mainActivity.binding.progressBar.visibility = View.VISIBLE
+                MainActivity.mainActivity.binding.progressBar.isIndeterminate = true
 
+                val imageHashSet = images.toMutableSet()
+                for (accessory in accessories) imageHashSet.addAll(accessory.imageHashes)
 
-
-//                if (index == -1)
-//                    MainActivity.deviceEntities.add(deviceEntity)
-//                else {
-//                    MainActivity.deviceEntities[index] = deviceEntity
-//                    ListFragment.deviceRecyclerView.adapter?.notifyItemChanged(index)
-//                }
-
+                MainActivity.mainActivity.lifecycleScope.launch {
+                    saveImages(imageHashSet)
+                    MainActivity.mainActivity.binding.progressBar.visibility = View.GONE
+                    MainActivity.mainActivity.binding.progressBar.isIndeterminate = false
+                }
+            }
 
             val result = Intent()
                 .putExtra("pl.kubaf2k.consolist.index", index)
                 .putExtra("pl.kubaf2k.consolist.resultDevice", resultDevice)
             setResult(Activity.RESULT_OK, result)
             finish()
-            return@setOnClickListener
         }
 
         if (!isAccessory) {

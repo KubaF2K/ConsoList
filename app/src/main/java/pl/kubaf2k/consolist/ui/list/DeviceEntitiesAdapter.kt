@@ -14,11 +14,8 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
-import pl.kubaf2k.consolist.ListEntryActivity
-import pl.kubaf2k.consolist.MainActivity
-import pl.kubaf2k.consolist.R
+import pl.kubaf2k.consolist.*
 import pl.kubaf2k.consolist.dataclasses.DeviceEntity
-import pl.kubaf2k.consolist.getBitmapFromURL
 
 class DeviceEntitiesAdapter(activityCaller: ActivityResultCaller): RecyclerView.Adapter<DeviceEntitiesViewHolder>() {
     private lateinit var parent: ViewGroup
@@ -44,6 +41,8 @@ class DeviceEntitiesAdapter(activityCaller: ActivityResultCaller): RecyclerView.
             MainActivity.deviceEntities[index] = it
             notifyItemChanged(index)
         }
+
+        saveList(MainActivity.deviceEntities)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DeviceEntitiesViewHolder {

@@ -14,11 +14,8 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
-import pl.kubaf2k.consolist.ListEntryActivity
-import pl.kubaf2k.consolist.MainActivity
-import pl.kubaf2k.consolist.R
+import pl.kubaf2k.consolist.*
 import pl.kubaf2k.consolist.dataclasses.DeviceEntity
-import pl.kubaf2k.consolist.getBitmapFromURL
 
 class DevicesAdapter(activityCaller: ActivityResultCaller): RecyclerView.Adapter<DevicesViewHolder>() {
     private lateinit var parent: ViewGroup
@@ -34,6 +31,8 @@ class DevicesAdapter(activityCaller: ActivityResultCaller): RecyclerView.Adapter
             "pl.kubaf2k.consolist.resultDevice",
             DeviceEntity::class.java
         )?.let { MainActivity.deviceEntities.add(it) }
+
+        saveList(MainActivity.deviceEntities)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DevicesViewHolder {
@@ -55,12 +54,14 @@ class DevicesAdapter(activityCaller: ActivityResultCaller): RecyclerView.Adapter
 
         val device = MainActivity.devices[holder.adapterPosition]
 
-        name.text = "${device.manufacturer} ${device.name} (${device.releaseYear})"
-        if (name.text.length > 30)
-            name.text = "${name.text.slice(0..30)}..."
-        description.text = device.description
-        if (description.text.length > 150)
-            description.text = "${description.text.slice(0..150)}..."
+        var nameText = "${device.manufacturer} ${device.name} (${device.releaseYear})"
+        if (nameText.length > 30)
+            nameText = "${nameText.slice(0..30)}..."
+        var descText = device.description
+        if (descText.length > 150)
+            descText = "${descText.slice(0..150)}..."
+        name.text = nameText
+        description.text = descText
 
         parent.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
             getBitmapFromURL(device.imgURL)?.let {
