@@ -2,16 +2,6 @@ package pl.kubaf2k.consolist.dataclasses
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import org.simpleframework.xml.ElementList
-import org.simpleframework.xml.Root
-
-@Root(name = "Devices")
-class WrapperList(
-    @field:ElementList
-    var list: MutableList<DeviceEntity>
-) {
-    constructor(): this(mutableListOf())
-}
 
 @Parcelize
 data class DeviceEntity(

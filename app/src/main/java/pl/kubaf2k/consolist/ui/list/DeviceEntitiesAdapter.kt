@@ -106,6 +106,7 @@ class DeviceEntitiesAdapter(activityCaller: ActivityResultCaller): RecyclerView.
         deleteBT.setOnClickListener {
             MainActivity.deviceEntities.removeAt(holder.adapterPosition)
             notifyItemRemoved(holder.adapterPosition)
+            saveList(MainActivity.deviceEntities)
         }
     }
 }

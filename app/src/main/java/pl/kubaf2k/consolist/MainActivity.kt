@@ -21,27 +21,32 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.*
-import org.simpleframework.xml.core.Persister
 import pl.kubaf2k.consolist.MainActivity.Companion.cachedLocalImages
 import pl.kubaf2k.consolist.MainActivity.Companion.cachedWebImages
 import pl.kubaf2k.consolist.MainActivity.Companion.listCache
 import pl.kubaf2k.consolist.databinding.ActivityMainBinding
 import pl.kubaf2k.consolist.dataclasses.Device
 import pl.kubaf2k.consolist.dataclasses.DeviceEntity
-import pl.kubaf2k.consolist.dataclasses.WrapperList
 import pl.kubaf2k.consolist.ui.list.ListFragment
-import java.io.ByteArrayInputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.OutputStream
+import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.ByteBuffer
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+
+fun Bitmap.hash(): Int {
+    if (config == Bitmap.Config.HARDWARE)
+        return copy(Bitmap.Config.ARGB_8888, false).hash()
+
+    val buffer = ByteBuffer.allocate(allocationByteCount)
+    copyPixelsToBuffer(buffer)
+    return buffer.array().contentHashCode()
+}
 
 suspend fun getBitmapFromURL(url: URL): Bitmap? {
     if (cachedWebImages.containsKey(url))
@@ -83,20 +88,21 @@ suspend fun compressBitmapToStream(image: Bitmap, stream: OutputStream) {
 
 fun saveList(list: List<DeviceEntity>) {
     val deviceEntitiesCopy = list.toMutableList()
-    val serializer = Persister()
 
-    val listFile = File(listCache, "list.xml")
-    if (listFile.exists()) listFile.delete()
-    listFile.createNewFile()
+    val listFile = File(listCache, "list.json")
+    if (!listFile.exists()) listFile.createNewFile()
 
-    serializer.write(WrapperList(deviceEntitiesCopy), listFile)
+    listFile.writeText(Gson().toJson(
+        deviceEntitiesCopy,
+        object: TypeToken<MutableList<DeviceEntity>>(){}.type
+    ))
 }
 
 suspend fun saveImage(image: Bitmap) {
-    if (listCache.list()?.contains("${image.hashCode()}.webp") == true) return
+    if (listCache.list()?.contains("${image.hash()}.webp") == true) return
 
     withContext(Dispatchers.IO) {
-        val file = File(listCache, "${image.hashCode()}.webp")
+        val file = File(listCache, "${image.hash()}.webp")
         file.createNewFile()
         compressBitmapToStream(image, FileOutputStream(file))
     }
@@ -107,15 +113,17 @@ suspend fun saveImages(hashes: Collection<Int>) {
 
 suspend fun saveDevicesToFolder(folder: File, deviceEntities: List<DeviceEntity>) {
     val deviceEntitiesCopy = deviceEntities.toMutableList()
-    val serializer = Persister()
 
     if (folder.exists()) folder.deleteRecursively()
     folder.mkdir()
 
     withContext(Dispatchers.IO) {
-        val listFile = File(folder, "list.xml")
+        val listFile = File(folder, "list.json")
         listFile.createNewFile()
-        serializer.write(WrapperList(deviceEntitiesCopy), listFile)
+        listFile.writeText(Gson().toJson(
+            deviceEntitiesCopy,
+            object: TypeToken<MutableList<DeviceEntity>>(){}.type
+        ))
 
         @Suppress("DEPRECATION")
         for (device in deviceEntitiesCopy) {
@@ -147,12 +155,16 @@ suspend fun saveDevicesToFile(
     contentResolver.openAssetFileDescriptor(uri, "w")?.use { file ->
         val stream = ZipOutputStream(FileOutputStream(file.fileDescriptor))
         val deviceEntitiesCopy = deviceEntities.toMutableList()
-        val serializer = Persister()
 
         withContext(Dispatchers.IO) {
-            stream.putNextEntry(ZipEntry("list.xml"))
-            serializer.write(WrapperList(deviceEntitiesCopy), stream)
-
+            stream.putNextEntry(ZipEntry("list.json"))
+            stream.writer().apply {
+                write(Gson().toJson(
+                    deviceEntitiesCopy,
+                    object: TypeToken<MutableList<DeviceEntity>>(){}.type
+                ))
+                flush()
+            }
 
             @Suppress("DEPRECATION")
             for (device in deviceEntitiesCopy) {
@@ -184,22 +196,27 @@ suspend fun loadDevicesFromFolder(folder: File, append: Boolean = false) {
     val loadedImages = mutableSetOf<File>()
     val devicesWithMissingImages = mutableSetOf<DeviceEntity>()
 
-    val serializer = Persister()
 
     withContext(Dispatchers.IO) {
         folder.listFiles()?.let { files ->
-            val listFile = files.find { it.name == "list.xml" } ?: throw IllegalArgumentException("Provided list folder doesn't contain a valid list file")
-            tempDeviceEntities = serializer.read(
-                WrapperList::class.java,
-                FileInputStream(listFile)
-            ).list
+            val listFile = files.find { it.name == "list.json" } ?: throw IllegalArgumentException("Provided list folder doesn't contain a valid list file")
+            tempDeviceEntities = Gson().fromJson(
+                listFile.reader(),
+                object: TypeToken<MutableList<DeviceEntity>>(){}.type
+            ) ?: throw IllegalArgumentException("The list file is invalid.")
 
             for (device in tempDeviceEntities) {
                 for (accessory in device.accessories) {
                     for (hash in accessory.imageHashes) {
-                        if (tempCachedImages.containsKey(hash)) continue
-
                         val imageFile = files.find { it.name == "$hash.webp" }
+
+                        if (tempCachedImages.containsKey(hash)) {
+                            if (imageFile != null) {
+                                loadedImages.add(imageFile)
+                            }
+                            continue
+                        }
+
 
                         if (imageFile == null) devicesWithMissingImages.add(device)
                         else {
@@ -224,7 +241,7 @@ suspend fun loadDevicesFromFolder(folder: File, append: Boolean = false) {
                     }
                 }
             }
-            for (file in files.filter { !loadedImages.contains(it) && it.name != "list.xml" }) file.delete()
+            for (file in files.filter { !loadedImages.contains(it) && it.name != "list.json" }) file.delete()
         }
     }
     if (!append) {
@@ -246,18 +263,18 @@ suspend fun loadDevicesFromFile(contentResolver: ContentResolver, uri: Uri, appe
         var tempDeviceEntities: MutableList<DeviceEntity> = mutableListOf()
         val tempCachedImages = HashMap<Int, Bitmap>()
 
-        val serializer = Persister()
-
         withContext(Dispatchers.IO) {
             var ze = stream.nextEntry
             while (ze != null) {
-                if (ze.name == "list.xml") {
-                    tempDeviceEntities = serializer.read(
-                        WrapperList::class.java,
-                        ByteArrayInputStream(stream.readBytes())
-                    ).list
+                if (ze.name == "list.json") {
+                    Gson().fromJson<MutableList<DeviceEntity>>(
+                        stream.reader(),
+                        object: TypeToken<MutableList<DeviceEntity>>(){}.type
+                    )?.let {
+                        tempDeviceEntities = it
+                    }
                     stream.closeEntry()
-                } else {
+                } else if (ze.name.endsWith(".webp")) {
                     val bmp = ImageDecoder.decodeBitmap(
                         ImageDecoder.createSource(
                             ByteBuffer.wrap(stream.readBytes())

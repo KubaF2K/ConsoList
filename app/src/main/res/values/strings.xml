@@ -27,4 +27,5 @@
     <string name="save_list">Save list</string>
     <string name="load_list">Load list</string>
     <string name="saved">Saved list!</string>
+    <string name="failed_to_load">Failed to load list from file</string>
 </resources>

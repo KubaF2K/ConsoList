@@ -49,8 +49,6 @@ class ListEntryActivity : AppCompatActivity() {
     private var imgJob: Job? = null
     private var tempUri: Uri? = null
 
-    //TODO fix list removal on close
-
     private fun updateButtons() {
         binding.prevImgBtn.isEnabled = imgPos > 0
         binding.nextImgBtn.isEnabled = imgPos <= images.size-1
@@ -62,7 +60,7 @@ class ListEntryActivity : AppCompatActivity() {
 
     private val imagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri -> uri?.let {
         val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, it))
-        val bitmapHash = bitmap.hashCode()
+        val bitmapHash = bitmap.hash()
         MainActivity.cachedLocalImages[bitmapHash] = bitmap
         images.add(bitmapHash)
         imgPos = images.size - 1
@@ -75,7 +73,7 @@ class ListEntryActivity : AppCompatActivity() {
 
         tempUri?.let { uri ->
             val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri))
-            val bitmapHash = bitmap.hashCode()
+            val bitmapHash = bitmap.hash()
             MainActivity.cachedLocalImages[bitmapHash] = bitmap
             images.add(bitmapHash)
             imgPos = images.size - 1
