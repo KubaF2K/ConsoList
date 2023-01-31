@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.editorpanel.EditorPanelActivity">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone" />
+
+    <ImageButton
+        android:id="@+id/addBtn"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@color/cardview_dark_background"
+        android:contentDescription="@string/add"
+        android:src="@android:drawable/ic_menu_add"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar"
+        app:layout_constraintEnd_toEndOf="@+id/deviceRecyclerView" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/deviceRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/addBtn" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

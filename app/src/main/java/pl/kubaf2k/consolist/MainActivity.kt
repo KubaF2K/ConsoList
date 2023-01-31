@@ -1,6 +1,7 @@
 package pl.kubaf2k.consolist
 
 import android.content.ContentResolver
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
@@ -19,6 +20,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
@@ -30,6 +32,7 @@ import pl.kubaf2k.consolist.MainActivity.Companion.listCache
 import pl.kubaf2k.consolist.databinding.ActivityMainBinding
 import pl.kubaf2k.consolist.dataclasses.Device
 import pl.kubaf2k.consolist.dataclasses.DeviceEntity
+import pl.kubaf2k.consolist.ui.editorpanel.EditorPanelActivity
 import pl.kubaf2k.consolist.ui.list.ListFragment
 import java.io.*
 import java.net.HttpURLConnection
@@ -307,7 +310,7 @@ suspend fun loadDevicesFromFile(contentResolver: ContentResolver, uri: Uri, appe
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        lateinit var mainActivity: MainActivity
+        lateinit var instance: MainActivity
         val devices: MutableList<Device> = ArrayList()
         var deviceEntities: MutableList<DeviceEntity> = ArrayList()
         val cachedWebImages: MutableMap<URL, Bitmap> = HashMap()
@@ -316,6 +319,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     lateinit var binding: ActivityMainBinding
+    lateinit var db: FirebaseFirestore
 
     private val saveRequest = registerForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) {
         it?.let { uri ->
@@ -358,6 +362,11 @@ class MainActivity : AppCompatActivity() {
                 loadRequest.launch(arrayOf("application/octet-stream"))
                 true
             }
+            R.id.edit_database -> {
+                //TODO password
+                startActivity(Intent(this, EditorPanelActivity::class.java))
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -368,8 +377,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        mainActivity = this
-        val db = Firebase.firestore
+        instance = this
+        db = Firebase.firestore
 
         db.collection("devices")
             .get()

@@ -27,4 +27,6 @@
     <string name="save_list">Zapisz listę</string>
     <string name="load_list">Wczytaj listę</string>
     <string name="saved">Zapisano listę!</string>
+    <string name="failed_to_load">Niepowodzenie odczytu listy z pliku</string>
+    <string name="edit_database">Edytuj bazę danych</string>
 </resources>

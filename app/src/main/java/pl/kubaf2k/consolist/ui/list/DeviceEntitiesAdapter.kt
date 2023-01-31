@@ -68,9 +68,11 @@ class DeviceEntitiesAdapter(activityCaller: ActivityResultCaller): RecyclerView.
 
         val deviceEntity = MainActivity.deviceEntities[holder.adapterPosition]
 
-        var nameText = "${deviceEntity.device.manufacturer} ${deviceEntity.device.name} (${deviceEntity.device.releaseYear})"
-        if (nameText.length > 30)
-            nameText = "${nameText.slice(0..30)}..."
+        var nameText = "${deviceEntity.device.manufacturer} ${deviceEntity.device.name}"
+        if (deviceEntity.device.models.size > 1 || deviceEntity.model.modelNumbers.size > 1)
+            nameText += " (${deviceEntity.modelNumber})"
+        if (nameText.length > 40)
+            nameText = "${nameText.slice(0..39)}..."
         name.text = nameText
 
         val descText = "${parent.resources.getString(R.string.condition)}: ${deviceEntity.condition}"

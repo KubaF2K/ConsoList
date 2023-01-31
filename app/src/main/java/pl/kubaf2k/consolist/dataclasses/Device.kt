@@ -56,16 +56,17 @@ data class Device(
             models.add(Model(
                 model["name"] as String,
                 URL(model["imgURL"] as String),
-                (model["modelNumbers"] as List<String>).toMutableList()
+                (model["modelNumbers"] as List<String>?)?.toMutableList() ?: mutableListOf()
             ))
         }
-        for (accessory in document.data["accessories"] as List<Map<String, Any>>) {
-            accessories.add(Accessory(
-                accessory["name"] as String,
-                URL(accessory["imgURL"] as String),
-                accessory["modelNumber"] as String,
-                Accessory.AccessoryType.valueOf(accessory["type"] as String)
-            ))
-        }
+        if (document.data["accessories"] != null)
+            for (accessory in (document.data["accessories"] as List<Map<String, Any>>)) {
+                accessories.add(Accessory(
+                    accessory["name"] as String,
+                    URL(accessory["imgURL"] as String),
+                    accessory["modelNumber"] as String,
+                    Accessory.AccessoryType.valueOf(accessory["type"] as String)
+                ))
+            }
     }
 }

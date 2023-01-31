@@ -169,7 +169,7 @@ class ListEntryActivity : AppCompatActivity() {
 
         binding.deviceNameTextView.text = if (isAccessory) "${accessory.name} (${accessory.modelNumber})" else "${device.manufacturer} ${device.name}"
 
-        if (!isAccessory && device.models.size > 1) {
+        if (!isAccessory) {
             val modelArrayAdapter: ArrayAdapter<CharSequence> =
                 ArrayAdapter(this, android.R.layout.simple_spinner_item, device.models.map { it.name })
             binding.modelSpinner.adapter = modelArrayAdapter
@@ -248,9 +248,8 @@ class ListEntryActivity : AppCompatActivity() {
                     if (it != -1) binding.modelSpinner.setSelection(it)
                 }
             }
-        } else {
-            if(!isAccessory)
-                model = device.models[0]
+            if (device.models.size == 1)
+                binding.modelSpinner.visibility = View.INVISIBLE
         }
 
         if (index != -1) {
@@ -361,16 +360,16 @@ class ListEntryActivity : AppCompatActivity() {
                 accessories
             )
             if (!isAccessory) {
-                MainActivity.mainActivity.binding.progressBar.visibility = View.VISIBLE
-                MainActivity.mainActivity.binding.progressBar.isIndeterminate = true
+                MainActivity.instance.binding.progressBar.visibility = View.VISIBLE
+                MainActivity.instance.binding.progressBar.isIndeterminate = true
 
                 val imageHashSet = images.toMutableSet()
                 for (accessory in accessories) imageHashSet.addAll(accessory.imageHashes)
 
-                MainActivity.mainActivity.lifecycleScope.launch {
+                MainActivity.instance.lifecycleScope.launch {
                     saveImages(imageHashSet)
-                    MainActivity.mainActivity.binding.progressBar.visibility = View.GONE
-                    MainActivity.mainActivity.binding.progressBar.isIndeterminate = false
+                    MainActivity.instance.binding.progressBar.visibility = View.GONE
+                    MainActivity.instance.binding.progressBar.isIndeterminate = false
                 }
             }
 

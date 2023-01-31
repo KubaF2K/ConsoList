@@ -12,4 +12,8 @@
         android:icon="@android:drawable/ic_input_get"
         android:title="@string/load_list"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/edit_database"
+        android:title="@string/edit_database"
+        app:showAsAction="never"/>
 </menu>
