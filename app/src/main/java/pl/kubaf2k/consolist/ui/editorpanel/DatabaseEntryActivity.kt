@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import pl.kubaf2k.consolist.MainActivity
@@ -57,6 +58,13 @@ class DatabaseEntryActivity : AppCompatActivity() {
             accessories = it.accessories
         }
 
+        binding.modelRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.modelRecyclerView.adapter = ModelsAdapter(models)
+        binding.addModelBtn.setOnClickListener {
+            models.add(Model().apply { modelNumbers = mutableListOf("") })
+            binding.modelRecyclerView.adapter?.notifyItemInserted(models.size-1)
+        }
+
         binding.saveButton.setOnClickListener {
             val newDevice = Device(
                 binding.deviceNameEditText.text.toString(),
@@ -64,8 +72,8 @@ class DatabaseEntryActivity : AppCompatActivity() {
                 URL(binding.deviceImageURLEditText.text.toString()),
                 binding.deviceManufacturerEditText.text.toString(),
                 binding.deviceReleaseYearEditText.text.toString().toInt(),
-                models,
-                accessories
+                models.toMutableList(),
+                accessories.toMutableList()
             )
             if (device != null) device?.let {
                 MainActivity.instance.db.collection("devices")

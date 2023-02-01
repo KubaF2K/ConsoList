@@ -29,4 +29,12 @@
     <string name="saved">Zapisano listę!</string>
     <string name="failed_to_load">Niepowodzenie odczytu listy z pliku</string>
     <string name="edit_database">Edytuj bazę danych</string>
+    <string name="name">Nazwa</string>
+    <string name="img_url">URL obrazka</string>
+    <string name="invalid_url">Niepoprawny URL obrazka!</string>
+    <string name="manufacturer">Producent</string>
+    <string name="release_year">Rok wydania</string>
+    <string name="description">Opis</string>
+    <string name="models">Modele</string>
+    <string name="add_model">Dodaj model</string>
 </resources>

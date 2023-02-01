@@ -28,4 +28,13 @@
     <string name="load_list">Load list</string>
     <string name="saved">Saved list!</string>
     <string name="failed_to_load">Failed to load list from file</string>
+    <string name="edit_database">Edit Database</string>
+    <string name="name">Name</string>
+    <string name="img_url">Image URL</string>
+    <string name="invalid_url">Invalid Image URL!</string>
+    <string name="manufacturer">Manufacturer</string>
+    <string name="release_year">Release Year</string>
+    <string name="description">Description</string>
+    <string name="models">Models</string>
+    <string name="add_model">Add model</string>
 </resources>

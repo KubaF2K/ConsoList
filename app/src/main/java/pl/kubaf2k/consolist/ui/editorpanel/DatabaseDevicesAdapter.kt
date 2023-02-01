@@ -16,7 +16,6 @@ import pl.kubaf2k.consolist.MainActivity
 import pl.kubaf2k.consolist.R
 import pl.kubaf2k.consolist.getBitmapFromURL
 
-//TODO nie widać nic w recyclerze
 class DatabaseDevicesAdapter: RecyclerView.Adapter<DatabaseDevicesViewHolder>() {
     private lateinit var parent: ViewGroup
 

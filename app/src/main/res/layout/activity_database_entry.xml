@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context=".ListEntryActivity">
 
     <ProgressBar
@@ -46,47 +46,46 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/deviceImageView">
 
-<!--        TODO-->
         <EditText
             android:id="@+id/deviceManufacturerEditText"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:ems="12"
-            android:hint="Manufacturer"
+            android:hint="@string/manufacturer"
             android:importantForAutofill="no"
             android:inputType="text"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
         <EditText
             android:id="@+id/deviceNameEditText"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:ems="12"
-            android:hint="Name"
+            android:hint="@string/name"
             android:importantForAutofill="no"
             android:inputType="text"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
         <EditText
             android:id="@+id/deviceReleaseYearEditText"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:ems="12"
-            android:hint="Release Year"
+            android:hint="@string/release_year"
             android:importantForAutofill="no"
             android:inputType="number"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
         <EditText
             android:id="@+id/deviceDescriptionEditText"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:ems="12"
-            android:hint="Description"
+            android:hint="@string/description"
             android:importantForAutofill="no"
             android:inputType="textMultiLine"
             android:minHeight="48dp"
@@ -99,11 +98,11 @@
             android:scrollHorizontally="false"/>
         <EditText
             android:id="@+id/deviceImageURLEditText"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:ems="12"
-            android:hint="Image URL"
+            android:hint="@string/img_url"
             android:importantForAutofill="no"
             android:inputType="textWebEmailAddress|textUri"
             android:minHeight="48dp"
@@ -113,16 +112,16 @@
             android:id="@+id/modelsTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Models" />
+            android:text="@string/models" />
         <ImageButton
             android:id="@+id/addModelBtn"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@android:drawable/ic_menu_add"
-            android:contentDescription="Add model" />
+            android:contentDescription="@string/add_model" />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/modelRecyclerView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <TextView
@@ -138,7 +137,7 @@
             android:contentDescription="@string/add_accessory" />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/accessoryRecyclerView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
