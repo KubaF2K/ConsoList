@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import pl.kubaf2k.consolist.MainActivity
+import pl.kubaf2k.consolist.R
 import pl.kubaf2k.consolist.databinding.ActivityDatabaseEntryBinding
 import pl.kubaf2k.consolist.dataclasses.Accessory
 import pl.kubaf2k.consolist.dataclasses.Device
@@ -15,6 +16,7 @@ import pl.kubaf2k.consolist.dataclasses.Model
 import pl.kubaf2k.consolist.getBitmapFromURL
 import java.net.URL
 
+//TODO refresh list after saving, go back after saving
 class DatabaseEntryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDatabaseEntryBinding
     private var index = -1
@@ -52,10 +54,11 @@ class DatabaseEntryActivity : AppCompatActivity() {
             binding.deviceImageURLEditText.setText(it.imgURL.toString())
             updateImage(it.imgURL)
 
-            //TODO models
-            models = it.models
-            //TODO accessories
-            accessories = it.accessories
+            val nameText = "${it.manufacturer} ${it.name} (${it.releaseYear})"
+            binding.deviceNameTextView.text = nameText
+
+            models = it.models.toMutableList()
+            accessories = it.accessories.toMutableList()
         }
 
         binding.modelRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -63,6 +66,13 @@ class DatabaseEntryActivity : AppCompatActivity() {
         binding.addModelBtn.setOnClickListener {
             models.add(Model().apply { modelNumbers = mutableListOf("") })
             binding.modelRecyclerView.adapter?.notifyItemInserted(models.size-1)
+        }
+
+        binding.accessoryRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.accessoryRecyclerView.adapter = AccessoriesAdapter(accessories)
+        binding.addAccessoryBtn.setOnClickListener {
+            accessories.add(Accessory())
+            binding.accessoryRecyclerView.adapter?.notifyItemInserted(accessories.size-1)
         }
 
         binding.saveButton.setOnClickListener {
@@ -85,9 +95,8 @@ class DatabaseEntryActivity : AppCompatActivity() {
                         if (!existsQuery.isEmpty) {
                             for (document in existsQuery) {
                                 if (Device(document) != it) {
-                                    Toast.makeText(this, "Device already exists!", Toast.LENGTH_SHORT)
+                                    Toast.makeText(this, R.string.device_already_exists, Toast.LENGTH_SHORT)
                                         .show()
-                                    //TODO string
                                     return@addOnSuccessListener
                                 }
                             }
@@ -100,8 +109,7 @@ class DatabaseEntryActivity : AppCompatActivity() {
                             .addOnSuccessListener { query ->
                                 for (document in query) {
                                     document.reference.set(newDevice)
-                                    Toast.makeText(this, "Edited device", Toast.LENGTH_SHORT).show()
-                                    //TODO string
+                                    Toast.makeText(this, R.string.edited_device, Toast.LENGTH_SHORT).show()
                                 }
                             }
                     }
@@ -112,15 +120,13 @@ class DatabaseEntryActivity : AppCompatActivity() {
                     .whereEqualTo("releaseYear", newDevice.releaseYear)
                     .get().addOnSuccessListener { existsQuery ->
                         if (!existsQuery.isEmpty) {
-                            Toast.makeText(this, "Device already exists!", Toast.LENGTH_SHORT)
+                            Toast.makeText(this, R.string.device_already_exists, Toast.LENGTH_SHORT)
                                 .show()
-                            //TODO string
                             return@addOnSuccessListener
                         }
                         MainActivity.instance.db.collection("devices").add(newDevice)
                             .addOnSuccessListener {
-                                Toast.makeText(this, "Added device", Toast.LENGTH_SHORT).show()
-                                //TODO string
+                                Toast.makeText(this, R.string.added_device, Toast.LENGTH_SHORT).show()
                             }
                     }
             }

@@ -1,5 +1,6 @@
 package pl.kubaf2k.consolist.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -46,16 +47,21 @@ class AccessoryEntitiesAdapter(
 
         val deviceEntity = accessories[holder.adapterPosition]
 
-        name.text = "${deviceEntity.device.name} (${deviceEntity.device.modelNumber})"
-        if (name.text.length > 30)
-            name.text = "${name.text.slice(0..30)}..."
+        var nameText = "${deviceEntity.device.name} (${deviceEntity.device.modelNumber})"
+        if (nameText.length > 30)
+            nameText = "${nameText.slice(0..30)}..."
+        name.text = nameText
 
-        description.text = "Typ: ${parent.resources.getString(
+
+        @SuppressLint("DiscouragedApi")
+        val descriptionText = "Typ: ${parent.resources.getString(
             parent.resources.getIdentifier(deviceEntity.device.type.toString().lowercase(Locale.getDefault()),
                 "string",
                 parent.context.packageName
             )
         )}\nStan: ${deviceEntity.condition}"
+
+        description.text = descriptionText
 
         if (deviceEntity.imageHashes.isNotEmpty()) {
             image.setImageBitmap(MainActivity.cachedLocalImages[deviceEntity.imageHashes[0]])

@@ -10,4 +10,11 @@
   <component name="ProjectType">
     <option name="id" value="jpab" />
   </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.09609000368867576" />
+      </ProjectState>
+    </option>
+  </component>
 </project>

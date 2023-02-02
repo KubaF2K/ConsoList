@@ -37,4 +37,10 @@
     <string name="description">Opis</string>
     <string name="models">Modele</string>
     <string name="add_model">Dodaj model</string>
+    <string name="delete_accessory">Usuń akcesorium</string>
+    <string name="add_model_number">Dodaj numer modelu</string>
+    <string name="delete_model">Usuń model</string>
+    <string name="device_already_exists">Urządzenie już istnieje!</string>
+    <string name="edited_device">Zedytowano urządzenie!</string>
+    <string name="added_device">Dodano urządzenie!</string>
 </resources>

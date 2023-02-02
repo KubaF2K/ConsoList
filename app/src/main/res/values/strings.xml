@@ -37,4 +37,10 @@
     <string name="description">Description</string>
     <string name="models">Models</string>
     <string name="add_model">Add model</string>
+    <string name="delete_accessory">Delete accessory</string>
+    <string name="add_model_number">Add model number</string>
+    <string name="delete_model">Delete model</string>
+    <string name="device_already_exists">Device already exists!</string>
+    <string name="edited_device">Edited device!</string>
+    <string name="added_device">Added device!</string>
 </resources>

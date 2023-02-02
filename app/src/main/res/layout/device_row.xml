@@ -34,7 +34,7 @@
         tools:ignore="HardcodedText" />
 
     <Button
-        android:id="@+id/addButton"
+        android:id="@+id/addModelNumberButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="5dp"

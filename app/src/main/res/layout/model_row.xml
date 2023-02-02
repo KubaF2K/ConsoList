@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -26,11 +27,20 @@
         android:id="@+id/modelNumbersRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-    <ImageButton
-        android:id="@+id/addButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@android:drawable/ic_menu_add"
-        android:background="@color/cardview_dark_background"
-        android:contentDescription="@string/add" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:ignore="ButtonStyle">
+        <Button
+            android:id="@+id/addModelNumberButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_model_number"
+            android:layout_marginEnd="10dp" />
+        <Button
+            android:id="@+id/deleteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete_model" />
+    </LinearLayout>
 </LinearLayout>

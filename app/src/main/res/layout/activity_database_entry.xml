@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     tools:context=".ListEntryActivity">
 
     <ProgressBar
@@ -15,7 +15,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:visibility="gone" />
-
     <ImageView
         android:id="@+id/deviceImageView"
         android:layout_width="100dp"
@@ -38,114 +37,124 @@
         app:layout_constraintTop_toTopOf="@+id/deviceImageView"
         tools:ignore="HardcodedText" />
 
-    <LinearLayout
-        android:id="@+id/attributesLinearLayout"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/attributesScrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="790dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/deviceImageView">
 
-        <EditText
-            android:id="@+id/deviceManufacturerEditText"
+        <LinearLayout
+            android:id="@+id/attributesLinearLayout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:ems="12"
-            android:hint="@string/manufacturer"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:minHeight="48dp"
-            android:textColorHint="#757575" />
-        <EditText
-            android:id="@+id/deviceNameEditText"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:ems="12"
-            android:hint="@string/name"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:minHeight="48dp"
-            android:textColorHint="#757575" />
-        <EditText
-            android:id="@+id/deviceReleaseYearEditText"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:ems="12"
-            android:hint="@string/release_year"
-            android:importantForAutofill="no"
-            android:inputType="number"
-            android:minHeight="48dp"
-            android:textColorHint="#757575" />
-        <EditText
-            android:id="@+id/deviceDescriptionEditText"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:ems="12"
-            android:hint="@string/description"
-            android:importantForAutofill="no"
-            android:inputType="textMultiLine"
-            android:minHeight="48dp"
-            android:textColorHint="#757575"
-            android:gravity="top|start"
-            android:overScrollMode="always"
-            android:scrollbarStyle="insideInset"
-            android:scrollbars="vertical"
-            android:lines="6"
-            android:scrollHorizontally="false"/>
-        <EditText
-            android:id="@+id/deviceImageURLEditText"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:ems="12"
-            android:hint="@string/img_url"
-            android:importantForAutofill="no"
-            android:inputType="textWebEmailAddress|textUri"
-            android:minHeight="48dp"
-            android:textColorHint="#757575" />
-
-        <TextView
-            android:id="@+id/modelsTextView"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/models" />
-        <ImageButton
-            android:id="@+id/addModelBtn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@android:drawable/ic_menu_add"
-            android:contentDescription="@string/add_model" />
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/modelRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/accessoriesTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/accessories" />
-        <ImageButton
-            android:id="@+id/addAccessoryBtn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@android:drawable/ic_menu_add"
-            android:contentDescription="@string/add_accessory" />
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/accessoryRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+            <EditText
+                android:id="@+id/deviceManufacturerEditText"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:ems="12"
+                android:hint="@string/manufacturer"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:textColorHint="#757575" />
 
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/save"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/attributesLinearLayout" />
+            <EditText
+                android:id="@+id/deviceNameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:ems="12"
+                android:hint="@string/name"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:textColorHint="#757575" />
+
+            <EditText
+                android:id="@+id/deviceReleaseYearEditText"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:ems="12"
+                android:hint="@string/release_year"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:minHeight="48dp"
+                android:textColorHint="#757575" />
+
+            <EditText
+                android:id="@+id/deviceDescriptionEditText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:ems="12"
+                android:gravity="top|start"
+                android:hint="@string/description"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine"
+                android:lines="6"
+                android:minHeight="48dp"
+                android:overScrollMode="always"
+                android:scrollbarStyle="insideInset"
+                android:scrollbars="vertical"
+                android:scrollHorizontally="false"
+                android:textColorHint="#757575" />
+
+            <EditText
+                android:id="@+id/deviceImageURLEditText"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:ems="12"
+                android:hint="@string/img_url"
+                android:importantForAutofill="no"
+                android:inputType="textWebEmailAddress|textUri"
+                android:minHeight="48dp"
+                android:textColorHint="#757575" />
+
+            <TextView
+                android:id="@+id/modelsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/models" />
+
+            <Button
+                android:id="@+id/addModelBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_model"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/modelRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/accessoriesTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/accessories" />
+
+            <Button
+                android:id="@+id/addAccessoryBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_accessory"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/accessoryRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/save" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
