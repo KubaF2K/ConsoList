@@ -306,6 +306,9 @@ suspend fun loadDevicesFromFile(contentResolver: ContentResolver, uri: Uri, appe
     }
 }
 
+//TODO find online button
+//TODO sorting and filtering
+//TODO fill database
 //TODO local copy of firestore
 class MainActivity : AppCompatActivity() {
 

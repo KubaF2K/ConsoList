@@ -10,6 +10,7 @@
     <string name="condition">Condition</string>
     <string name="save">Save</string>
     <string name="model_number">Model Number</string>
+    <string name="model_numbers">Model Numbers</string>
     <string name="other">Other</string>
     <string name="prev_image">Previous image</string>
     <string name="next_image">Next image</string>
@@ -50,4 +51,18 @@
     <string name="computer">Computer</string>
     <string name="memory_card">Memory Card</string>
     <string name="expansion">Expansion</string>
+    <string name="find_online">Find Online</string>
+    <string name="your_devices">Your Devices</string>
+    <string name="view">View</string>
+
+    <string name="first">First</string>
+    <string name="second">Second</string>
+    <string name="third">Third</string>
+    <string name="fourth">Fourth</string>
+    <string name="fifth">Fifth</string>
+    <string name="sixth">Sixth</string>
+    <string name="seventh">Seventh</string>
+    <string name="eighth">Eighth</string>
+    <string name="ninth">Ninth</string>
+    <string name="tenth">Tenth</string>
 </resources>

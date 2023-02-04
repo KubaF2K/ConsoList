@@ -15,6 +15,9 @@
         android:theme="@style/Theme.ConsoList"
         tools:targetApi="31">
         <activity
+            android:name=".ui.devices.DeviceViewActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.editorpanel.DatabaseEntryActivity"
             android:exported="false" />
         <activity

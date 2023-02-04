@@ -49,7 +49,8 @@ class DevicesAdapter(activityCaller: ActivityResultCaller): RecyclerView.Adapter
     override fun onBindViewHolder(holder: DevicesViewHolder, position: Int) {
         val name: TextView = holder.itemView.findViewById(R.id.deviceNameTextView)
         val description: TextView = holder.itemView.findViewById(R.id.deviceDescTextView)
-        val addBT: Button = holder.itemView.findViewById(R.id.addModelNumberButton)
+        val addBT: Button = holder.itemView.findViewById(R.id.addButton)
+        val viewBT: Button = holder.itemView.findViewById(R.id.viewButton)
         val image: ImageView = holder.itemView.findViewById(R.id.deviceImageView)
 
         val device = MainActivity.devices[holder.adapterPosition]
@@ -73,6 +74,11 @@ class DevicesAdapter(activityCaller: ActivityResultCaller): RecyclerView.Adapter
             val addIntent = Intent(parent.context, ListEntryActivity::class.java)
                 .putExtra("pl.kubaf2k.consolist.device", holder.adapterPosition)
             addDeviceEntityContract.launch(addIntent)
+        }
+        viewBT.setOnClickListener {
+            val viewIntent = Intent(parent.context, DeviceViewActivity::class.java)
+                .putExtra("pl.kubaf2k.consolist.device", holder.adapterPosition)
+            parent.context.startActivity(viewIntent)
         }
     }
 }

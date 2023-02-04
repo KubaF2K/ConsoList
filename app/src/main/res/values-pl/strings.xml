@@ -10,6 +10,7 @@
     <string name="condition">Stan</string>
     <string name="save">Zapisz</string>
     <string name="model_number">Numer modelu</string>
+    <string name="model_numbers">Numery modelu</string>
     <string name="other">Inny…</string>
     <string name="prev_image">Poprzednie zdjęcie</string>
     <string name="next_image">Następne zdjęcie</string>
@@ -50,4 +51,17 @@
     <string name="computer">Komputer</string>
     <string name="memory_card">Karta pamięci</string>
     <string name="expansion">Rozszerzenie</string>
+    <string name="find_online">Znajdź w Internecie</string>
+    <string name="your_devices">Twoje egzemplarze</string>
+    <string name="view">Wyświetl</string>
+    <string name="first">Pierwsza</string>
+    <string name="second">Druga</string>
+    <string name="third">Trzecia</string>
+    <string name="fourth">Czwarta</string>
+    <string name="fifth">Piąta</string>
+    <string name="sixth">Szósta</string>
+    <string name="seventh">Siódma</string>
+    <string name="eighth">Ósma</string>
+    <string name="ninth">Dziewiąta</string>
+    <string name="tenth">Dziesiąta</string>
 </resources>
