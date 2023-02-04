@@ -1,5 +1,6 @@
 package pl.kubaf2k.consolist.ui.editorpanel
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -73,10 +74,19 @@ class AccessoriesAdapter(private val accessories: MutableList<Accessory>): Recyc
                 null else modelNumber.text.toString()
         }
 
+        @SuppressLint("DiscouragedApi")
         val typeArrayAdapter: ArrayAdapter<CharSequence> = ArrayAdapter(
             parent.context,
             android.R.layout.simple_spinner_item,
-            Accessory.AccessoryType.values().map { it.name }
+            Accessory.AccessoryType.values().map {
+                parent.resources.getString(
+                    parent.resources.getIdentifier(
+                        it.name.lowercase(),
+                        "string",
+                        parent.context.packageName
+                    )
+                )
+            }
         )
         type.adapter = typeArrayAdapter
         type.setSelection(accessory.type.ordinal)

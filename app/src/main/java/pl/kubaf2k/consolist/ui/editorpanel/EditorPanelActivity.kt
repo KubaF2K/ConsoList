@@ -17,14 +17,16 @@ class EditorPanelActivity : AppCompatActivity() {
     }
 
     fun updateList() {
+        val length = devices.size
         devices.clear()
+        binding.deviceRecyclerView.adapter?.notifyItemRangeRemoved(0, length)
         MainActivity.instance.db.collection("devices")
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
                     devices.add(Device(document))
                 }
-                binding.deviceRecyclerView.adapter?.notifyDataSetChanged()
+                binding.deviceRecyclerView.adapter?.notifyItemRangeInserted(0, result.size())
             }
     }
 
@@ -37,7 +39,7 @@ class EditorPanelActivity : AppCompatActivity() {
         instance = this
 
         binding.deviceRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.deviceRecyclerView.adapter = DatabaseDevicesAdapter()
+        binding.deviceRecyclerView.adapter = DatabaseDevicesAdapter(this)
         updateList()
 
         binding.addBtn.setOnClickListener {

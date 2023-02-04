@@ -1,5 +1,6 @@
 package pl.kubaf2k.consolist.ui.editorpanel
 
+import android.app.Activity
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -7,7 +8,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat.startActivity
+import androidx.activity.result.ActivityResultCaller
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -16,8 +18,14 @@ import pl.kubaf2k.consolist.MainActivity
 import pl.kubaf2k.consolist.R
 import pl.kubaf2k.consolist.getBitmapFromURL
 
-class DatabaseDevicesAdapter: RecyclerView.Adapter<DatabaseDevicesViewHolder>() {
+class DatabaseDevicesAdapter(activityCaller: ActivityResultCaller): RecyclerView.Adapter<DatabaseDevicesViewHolder>() {
     private lateinit var parent: ViewGroup
+
+    private val saveOrEditRequest = activityCaller.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
+
+        EditorPanelActivity.instance.updateList()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DatabaseDevicesViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -55,12 +63,10 @@ class DatabaseDevicesAdapter: RecyclerView.Adapter<DatabaseDevicesViewHolder>() 
         }
 
         editBT.setOnClickListener {
-            startActivity(
-                parent.context,
+            saveOrEditRequest.launch(
                 Intent(parent.context, DatabaseEntryActivity::class.java).apply {
                     putExtra("pl.kubaf2k.consolist.index", holder.adapterPosition)
-                },
-                null
+                }
             )
         }
         deleteBT.setOnClickListener {

@@ -48,4 +48,6 @@
     <string name="home">Home Console</string>
     <string name="handheld">Handheld Console</string>
     <string name="computer">Computer</string>
+    <string name="memory_card">Memory Card</string>
+    <string name="expansion">Expansion</string>
 </resources>

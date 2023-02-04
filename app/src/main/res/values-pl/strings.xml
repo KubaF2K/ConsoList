@@ -43,4 +43,11 @@
     <string name="device_already_exists">Urządzenie już istnieje!</string>
     <string name="edited_device">Zedytowano urządzenie!</string>
     <string name="added_device">Dodano urządzenie!</string>
+    <string name="generation">Generacja</string>
+    <string name="type">Typ</string>
+    <string name="home">Konsola domowa</string>
+    <string name="handheld">Konsola przenośna</string>
+    <string name="computer">Komputer</string>
+    <string name="memory_card">Karta pamięci</string>
+    <string name="expansion">Rozszerzenie</string>
 </resources>

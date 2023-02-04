@@ -1,6 +1,8 @@
 package pl.kubaf2k.consolist.ui.editorpanel
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -19,7 +21,6 @@ import pl.kubaf2k.consolist.getBitmapFromURL
 import java.net.URL
 import java.util.*
 
-//TODO refresh list after saving, go back after saving
 class DatabaseEntryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDatabaseEntryBinding
     private var index = -1
@@ -79,14 +80,14 @@ class DatabaseEntryActivity : AppCompatActivity() {
         }
 
         binding.modelRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.modelRecyclerView.adapter = ModelsAdapter(models.toMutableList())
+        binding.modelRecyclerView.adapter = ModelsAdapter(models)
         binding.addModelBtn.setOnClickListener {
             models.add(Model().apply { modelNumbers = mutableListOf("") })
             binding.modelRecyclerView.adapter?.notifyItemInserted(models.size-1)
         }
 
         binding.accessoryRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.accessoryRecyclerView.adapter = AccessoriesAdapter(accessories.toMutableList())
+        binding.accessoryRecyclerView.adapter = AccessoriesAdapter(accessories)
         binding.addAccessoryBtn.setOnClickListener {
             accessories.add(Accessory())
             binding.accessoryRecyclerView.adapter?.notifyItemInserted(accessories.size-1)
@@ -126,9 +127,11 @@ class DatabaseEntryActivity : AppCompatActivity() {
                             .whereEqualTo("releaseYear", it.releaseYear)
                             .get()
                             .addOnSuccessListener { query ->
-                                for (document in query) {
-                                    document.reference.set(newDevice)
-                                    Toast.makeText(this, R.string.edited_device, Toast.LENGTH_SHORT).show()
+                                query.first().reference.set(newDevice).addOnSuccessListener {
+                                    val result = Intent()
+                                        .putExtra("pl.kubaf2k.consolist.index", index)
+                                    setResult(Activity.RESULT_OK, result)
+                                    finish()
                                 }
                             }
                     }
@@ -145,11 +148,13 @@ class DatabaseEntryActivity : AppCompatActivity() {
                         }
                         MainActivity.instance.db.collection("devices").add(newDevice)
                             .addOnSuccessListener {
-                                Toast.makeText(this, R.string.added_device, Toast.LENGTH_SHORT).show()
+                                val result = Intent()
+                                    .putExtra("pl.kubaf2k.consolist.index", index)
+                                setResult(Activity.RESULT_OK, result)
+                                finish()
                             }
                     }
             }
-            //TODO update parent list
         }
     }
 }

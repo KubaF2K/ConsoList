@@ -26,6 +26,8 @@ data class Accessory(
     @Parcelize
     enum class AccessoryType: Parcelable {
         CONTROLLER,
+        MEMORY_CARD,
+        EXPANSION,
         OTHER
     }
 }
@@ -74,42 +76,6 @@ data class Device(
                 ))
             }
     }
-
-//    override fun equals(other: Any?): Boolean {
-//        if (other !is Device)
-//            return false
-//
-//        if (name != other.name)
-//            return false
-//        if (description != other.description)
-//            return false
-//        if (imgURL != other.imgURL)
-//            return false
-//        if (manufacturer != other.manufacturer)
-//            return false
-//        if (generation != other.generation)
-//            return false
-//        if (releaseYear != other.releaseYear)
-//            return false
-//        if (deviceType != other.deviceType)
-//            return false
-//
-//        if (models.size != other.models.size)
-//            return false
-//        for (modelIndex in models.indices) {
-//            if (models[modelIndex] != other.models[modelIndex])
-//                return false
-//        }
-//
-//        if (accessories.size != other.accessories.size)
-//             return false
-//        for (accessoryIndex in accessories.indices) {
-//            if (accessories[accessoryIndex] != other.accessories[accessoryIndex])
-//                return false
-//        }
-//
-//        return true
-//    }
 
     @Parcelize
     enum class DeviceType: Parcelable {
