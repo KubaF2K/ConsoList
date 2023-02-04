@@ -79,6 +79,7 @@ class AccessoriesAdapter(private val accessories: MutableList<Accessory>): Recyc
             Accessory.AccessoryType.values().map { it.name }
         )
         type.adapter = typeArrayAdapter
+        type.setSelection(accessory.type.ordinal)
         type.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,

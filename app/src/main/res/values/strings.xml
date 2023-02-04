@@ -43,4 +43,9 @@
     <string name="device_already_exists">Device already exists!</string>
     <string name="edited_device">Edited device!</string>
     <string name="added_device">Added device!</string>
+    <string name="generation">Generation</string>
+    <string name="type">Type</string>
+    <string name="home">Home Console</string>
+    <string name="handheld">Handheld Console</string>
+    <string name="computer">Computer</string>
 </resources>

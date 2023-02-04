@@ -32,7 +32,7 @@ class ModelsAdapter(private val models: MutableList<Model>): RecyclerView.Adapte
         val url: EditText = holder.itemView.findViewById(R.id.imgUrlEditText)
         val modelNumbersRecyclerView: RecyclerView = holder.itemView.findViewById(R.id.modelNumbersRecyclerView)
         val addModelNumberButton: Button = holder.itemView.findViewById(R.id.addModelNumberButton)
-        val deleteButton: Button = holder.itemView.findViewById(R.id.deleteButton)
+        val deleteButton: Button = holder.itemView.findViewById(R.id.deleteModelButton)
 
         val model = models[holder.adapterPosition]
 

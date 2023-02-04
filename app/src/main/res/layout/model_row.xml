@@ -38,7 +38,7 @@
             android:text="@string/add_model_number"
             android:layout_marginEnd="10dp" />
         <Button
-            android:id="@+id/deleteButton"
+            android:id="@+id/deleteModelButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/delete_model" />
