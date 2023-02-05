@@ -38,116 +38,123 @@
         app:layout_constraintTop_toTopOf="@+id/deviceImageView"
         tools:ignore="HardcodedText" />
 
-    <LinearLayout
-        android:id="@+id/attributesLinearLayout"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/deviceImageView">
-
-        <Spinner
-            android:id="@+id/modelSpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:spinnerMode="dropdown"
-            android:visibility="gone" />
-
-        <Spinner
-            android:id="@+id/modelNumberSpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:spinnerMode="dropdown"
-            android:visibility="gone" />
-
-        <EditText
-            android:id="@+id/modelNumberEditText"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:ems="10"
-            android:hint="@string/model_number"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:visibility="gone"
-            tools:ignore="TextFields" />
-
-
-        <EditText
-            android:id="@+id/conditionEditText"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:ems="12"
-            android:hint="@string/condition"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:minHeight="48dp"
-            android:textColorHint="#757575" />
-        <TextView
-            android:id="@+id/photosTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/photos" />
-        <ImageView
-            android:id="@+id/devicePhotoView"
-            android:layout_width="wrap_content"
-            android:layout_height="300dp"
-            android:layout_gravity="center"
-            android:contentDescription="@string/device_image_desc"
-            app:srcCompat="@android:drawable/ic_menu_gallery"
-            tools:ignore="ImageContrastCheck" />
+        app:layout_constraintTop_toBottomOf="@id/deviceImageView"
+        app:layout_constraintBottom_toTopOf="@id/saveButton">
         <LinearLayout
-            android:layout_gravity="center"
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:id="@+id/attributesLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/deviceImageView">
 
-            <ImageButton
-                android:id="@+id/prevImgBtn"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:contentDescription="@string/prev_image"
-                android:enabled="false"
-                android:background="@color/cardview_dark_background"
-                android:src="@android:drawable/ic_media_previous" />
-            <ImageButton
-                android:id="@+id/nextImgBtn"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:enabled="false"
-                android:src="@android:drawable/ic_media_next"
-                android:background="@color/cardview_dark_background"
-                android:contentDescription="@string/next_image"/>
-            <Button
-                android:id="@+id/setImgBtn"
+            <Spinner
+                android:id="@+id/modelSpinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:enabled="false"
-                android:text="@string/set_image"/>
-            <ImageButton
-                android:id="@+id/addImgBtn"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@android:drawable/ic_menu_add"
-                android:background="@color/cardview_dark_background"
-                android:contentDescription="@string/add_image" />
-            <ImageButton
-                android:id="@+id/cameraBtn"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@android:drawable/ic_menu_camera"
-                android:background="@color/cardview_dark_background"
-                android:contentDescription="@string/take_photo" />
-            <ImageButton
-                android:id="@+id/delImgBtn"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:enabled="false"
-                android:src="@android:drawable/ic_menu_delete"
-                android:background="@color/cardview_dark_background"
-                android:contentDescription="@string/del_image" />
-        </LinearLayout>
+                android:spinnerMode="dropdown"
+                android:visibility="gone" />
+
+            <Spinner
+                android:id="@+id/modelNumberSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/modelNumberEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="@string/model_number"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:visibility="gone"
+                tools:ignore="TextFields" />
+
+
+            <EditText
+                android:id="@+id/conditionEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:ems="12"
+                android:hint="@string/condition"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:textColorHint="#757575" />
+            <TextView
+                android:id="@+id/photosTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/photos" />
+            <ImageView
+                android:id="@+id/devicePhotoView"
+                android:layout_width="wrap_content"
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/device_image_desc"
+                app:srcCompat="@android:drawable/ic_menu_gallery"
+                tools:ignore="ImageContrastCheck" />
+            <LinearLayout
+                android:layout_gravity="center"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/prevImgBtn"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/prev_image"
+                    android:enabled="false"
+                    android:background="@color/cardview_dark_background"
+                    android:src="@android:drawable/ic_media_previous" />
+                <ImageButton
+                    android:id="@+id/nextImgBtn"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:enabled="false"
+                    android:src="@android:drawable/ic_media_next"
+                    android:background="@color/cardview_dark_background"
+                    android:contentDescription="@string/next_image"/>
+                <Button
+                    android:id="@+id/setImgBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:text="@string/set_image"/>
+                <ImageButton
+                    android:id="@+id/addImgBtn"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@android:drawable/ic_menu_add"
+                    android:background="@color/cardview_dark_background"
+                    android:contentDescription="@string/add_image" />
+                <ImageButton
+                    android:id="@+id/cameraBtn"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@android:drawable/ic_menu_camera"
+                    android:background="@color/cardview_dark_background"
+                    android:contentDescription="@string/take_photo" />
+                <ImageButton
+                    android:id="@+id/delImgBtn"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:enabled="false"
+                    android:src="@android:drawable/ic_menu_delete"
+                    android:background="@color/cardview_dark_background"
+                    android:contentDescription="@string/del_image" />
+            </LinearLayout>
         <TextView
             android:id="@+id/accessoriesTextView"
             android:layout_width="wrap_content"
@@ -163,13 +170,14 @@
             android:id="@+id/accessoryRecyclerView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-    </LinearLayout>
-
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
     <Button
         android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/save"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/attributesLinearLayout" />
+        app:layout_constraintTop_toBottomOf="@id/scrollView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
