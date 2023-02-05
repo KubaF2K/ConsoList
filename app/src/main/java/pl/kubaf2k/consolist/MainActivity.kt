@@ -11,8 +11,11 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -306,7 +309,6 @@ suspend fun loadDevicesFromFile(contentResolver: ContentResolver, uri: Uri, appe
     }
 }
 
-//TODO sorting and filtering
 //TODO fill database
 //TODO local copy of firestore
 class MainActivity : AppCompatActivity() {
@@ -365,8 +367,22 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.edit_database -> {
-                //TODO password
-                startActivity(Intent(this, EditorPanelActivity::class.java))
+                val dialogView = layoutInflater.inflate(R.layout.password_dialog, null)
+                val alertDialog = AlertDialog.Builder(this)
+                    .setTitle(R.string.enter_password)
+                    .setView(dialogView)
+                    .create()
+                val passwordBox: EditText = dialogView.findViewById(R.id.passwordEditText)
+                val okButton: Button = dialogView.findViewById(R.id.okButton)
+
+                okButton.setOnClickListener {
+                    if (passwordBox.text.toString() == "okoń")
+                        startActivity(Intent(this, EditorPanelActivity::class.java))
+                    alertDialog.dismiss()
+                }
+
+                alertDialog.show()
+
                 true
             }
             else -> super.onOptionsItemSelected(item)

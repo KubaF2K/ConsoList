@@ -15,21 +15,58 @@
         app:layout_constraintTop_toTopOf="parent"
         android:visibility="gone" />
 
-    <ImageButton
-        android:id="@+id/addBtn"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="@color/cardview_dark_background"
-        android:contentDescription="@string/add"
-        android:src="@android:drawable/ic_menu_add"
+    <LinearLayout
+        android:id="@+id/buttonBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/progressBar"
-        app:layout_constraintEnd_toEndOf="@+id/deviceRecyclerView" />
+        app:layout_constraintEnd_toEndOf="@+id/deviceRecyclerView"
+        tools:ignore="SmallSp" >
+
+        <Button
+            android:id="@+id/clearSearchButton"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:text="@string/refresh"/>
+        <Button
+            android:id="@+id/searchButton"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:text="@string/search" />
+
+        <Button
+            android:id="@+id/sortButton"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:text="@string/sort" />
+        <Button
+            android:id="@+id/reverseSortButton"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:text="@string/reverse_sort" />
+        <Button
+            android:id="@+id/addBtn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:text="@string/add"/>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/deviceRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addBtn" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonBar"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

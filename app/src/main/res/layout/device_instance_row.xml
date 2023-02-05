@@ -55,16 +55,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/accessories"
+        android:layout_margin="5dp"
         app:layout_constraintStart_toStartOf="@+id/deviceImageView"
         app:layout_constraintTop_toBottomOf="@+id/deviceImageView"
-        android:visibility="gone" />
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/accessoriesTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""
+        android:layout_margin="5dp"
         app:layout_constraintStart_toStartOf="@+id/accessoriesHeaderText"
         app:layout_constraintTop_toBottomOf="@+id/accessoriesHeaderText"
-        android:visibility="gone" />
+        android:visibility="gone"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

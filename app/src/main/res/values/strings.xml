@@ -55,6 +55,13 @@
     <string name="your_devices">Your Devices</string>
     <string name="view">View</string>
     <string name="select_website">Select Website</string>
+    <string name="refresh">Refresh</string>
+    <string name="search">Search</string>
+    <string name="sort">Sort</string>
+    <string name="sorting">Sorting</string>
+    <string name="reverse_sort">Reverse Sort</string>
+    <string name="password">Password</string>
+    <string name="enter_password">Enter Password</string>
 
     <string name="first">First</string>
     <string name="second">Second</string>
