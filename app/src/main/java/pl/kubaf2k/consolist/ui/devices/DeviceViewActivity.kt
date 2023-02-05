@@ -3,9 +3,11 @@ package pl.kubaf2k.consolist.ui.devices
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -64,7 +66,33 @@ class DeviceViewActivity : AppCompatActivity() {
             addDeviceEntityContract.launch(addIntent)
         }
         binding.deviceFindButton.setOnClickListener {
-            TODO()
+            val link = StringBuilder()
+            AlertDialog.Builder(this)
+                .setTitle(R.string.select_website)
+                .setItems(arrayOf("Allegro", "OLX")) { _, which ->
+                    link.append(when (which) {
+                        0 -> "https://allegro.pl/listing?string="
+                        1 -> "https://www.olx.pl/d/oferty/q-"
+                        else -> return@setItems
+                    })
+                    var deviceString = "${device.manufacturer} ${device.name}"
+                    if (which == 1)
+                        deviceString = deviceString.replace(' ', '-')
+                    link.append(deviceString)
+                    val searchIntent = Intent(Intent.ACTION_VIEW).apply {
+                        data = Uri.parse(link.toString())
+                    }
+                    startActivity(searchIntent)
+                }.show()
+
+//            AlertDialog.Builder(this)
+//                    .setTitle(R.string.select_accessory)
+//                    .setItems(accArray) { _, which ->
+//                        val addIntent = Intent(this, ListEntryActivity::class.java)
+//                            .putExtra("pl.kubaf2k.consolist.parent", index)
+//                            .putExtra("pl.kubaf2k.consolist.device", which)
+//                        addOrEditAccessoryContract.launch(addIntent)
+//                    }.show()
         }
 
         binding.deviceDescriptionTextView.text = device.description

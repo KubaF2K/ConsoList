@@ -306,7 +306,6 @@ suspend fun loadDevicesFromFile(contentResolver: ContentResolver, uri: Uri, appe
     }
 }
 
-//TODO find online button
 //TODO sorting and filtering
 //TODO fill database
 //TODO local copy of firestore
@@ -314,10 +313,10 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         lateinit var instance: MainActivity
-        val devices: MutableList<Device> = ArrayList()
-        var deviceEntities: MutableList<DeviceEntity> = ArrayList()
-        val cachedWebImages: MutableMap<URL, Bitmap> = HashMap()
-        val cachedLocalImages: HashMap<Int, Bitmap> = HashMap()
+        val devices = mutableListOf<Device>()
+        var deviceEntities = mutableListOf<DeviceEntity>()
+        val cachedWebImages = mutableMapOf<URL, Bitmap>()
+        val cachedLocalImages = mutableMapOf<Int, Bitmap>()
         lateinit var listCache: File
     }
 
